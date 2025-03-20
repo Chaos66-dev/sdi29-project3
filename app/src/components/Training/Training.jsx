@@ -13,7 +13,7 @@ function Training() {
         //   .then((data) => setTrainingData(data))
         //   .catch((error) => console.error("Error fetching data:", error));
 
-        //start of mock data
+    //start of mock data
         const IDtest = 44;
         const mockResponse = {
             completed: ["Training 101", "Training 102"],
