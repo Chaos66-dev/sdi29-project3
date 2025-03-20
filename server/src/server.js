@@ -1,11 +1,791 @@
 const express = require('express');
 const server = express();
-const PORT = process.env.PORT || 3000;
 
 server.use(express.json());
+
 server.get('/',  (req, res) =>  {
     res.status(200).send("I am working")
 });
+
+// Routes to cover with all CRUD (GET, POST, PATCH, DELETE) functionality
+// /units
+server.get('/units', async (req, res) => {
+    try {
+        const query = await knex('units')
+                                .select('*')
+        res.status(200).send(query)
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve units' });
+    }
+})
+
+server.post('/units', async (req, res) => {
+    const name = re.body
+
+    const id = await knex('units').count('id') + 1
+    if ( id !== await knex('units').count('id') + 1){
+        return res.status(400).json({ message : 'Failed to insert new unit.'})
+    }
+    if ( typeof name !== string || name.trim() === ''){
+        return res.status(400).json({ message : 'Name must be string and not empty.'})
+    }
+    try {
+        const insert = await knex('units').insert({unitiid: d,nname: ame})
+
+        res.status(200).json({message : insert})
+    } catch(error){
+        res.status(500).json({error: 'Failed to created new unit'})
+    }
+
+})
+
+// /units/:id
+server.get('/units/:id', async (req, res) =>{
+    const { id } = req.params
+
+    if(id > await knex('units').count('id')){
+        res.status(500).json({error: "unit id not found"})
+    }
+    try{
+        const selectedUnit = await knex('units')
+                                    .select('*')
+                                    .where(unit_id, id)
+        res.status(200).send(selectedUnit)
+    } catch(error){
+        res.status(500).json({error: 'Failed to retrieve unit by id'})
+    }
+})
+
+server.patch('/units/:id', async (req, res) =>{
+    const { id } = req.params
+    try {
+        const { unit_id, name, age, gender, rank } = req.body
+        const updates = { unit_id, name, age, gender, rank };
+        // removing undefined values to only keep the columns we want to p
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        // ensures there is an id present
+        if (typeof id !== 'number' || isNan(id)) {
+            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to update' });
+            return
+        }
+
+        // TODO input check the fields
+
+        // updates the employee
+        const updatedRows = await knex('units')
+                .where('id', id)
+                .update(updates);
+
+        if (updatedRows === 0) {
+            res.status(404).json({ error: 'Unit not found' });
+            return
+        }
+
+        res.status(200).json({ message: 'Unit updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update unit' });
+    }
+})
+
+server.delete('/units/:id', async (req, res) =>{
+    const { id } = req.params
+    if(id > await knex('units').count('id')){
+        res.status(500).json({error: "unit id not found"})
+    }
+    try{
+        const deletedUnit = await knex('units')
+                                    .select('*')
+                                    .where(unit_id, id)
+                                    .del()
+        res.status(200).json({message: 'Unit successfully deleted'})
+    } catch(error) {
+        res.status(500).json({error: 'Failed to delete unit by id'})
+    }
+
+})
+
+// /employees
+server.get('/employees', async (req, res) => {
+    try {
+        const query = await knex('employees')
+                                .select('*')
+        res.status(200).send(query)
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve employees' });
+    }
+})
+
+server.post('/employees', async (req, res) => {
+    const {name, age, rank, unit_id, gender} = req.body
+
+    // input checking of the req.body
+    if (
+        typeof name !== 'string' || name.trim() === '' ||
+        typeof age !== 'number' || isNaN(age) ||
+        typeof rank !== 'string' || rank.trim() === '' ||
+        typeof unit_id !== 'number' || isNaN(unit_id) ||
+        typeof gender !== 'string' || gender.trim() === ''
+    ) {
+        res.status(400).json({ error: 'Invalid or missing fields' });
+        return
+    }
+
+    try {
+        const insert = await knex('employees').insert({name, age, rank, unit_id, gender})
+
+        if (insert.length > 0) {
+            res.status(201).json({ message: 'Employee added successfully' });
+        } else {
+            res.status(400).json({ error: 'Failed to insert employee' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+server.patch('/employees', async (req, res) => {
+    try {
+        const { id, unit_id, name, age, gender, rank, } = req.body
+        const updates = { id, unit_id, name, age, gender, rank };
+        // removing undefined values to only keep the columns we want to p
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        // ensures there is an id present
+        if (typeof id !== 'number' || isNan(id)) {
+            res.status(400).json({ error: 'Invalid or missing fields. Must include id of employee to update if updating from this endpoint' });
+            return
+        }
+
+        // TODO input check the fields
+
+        // updates the employee
+        const updatedRows = await knex('employees')
+                .where('id', id)
+                .update(updates);
+
+        if (updatedRows === 0) {
+            res.status(404).json({ error: 'Employee not found' });
+            return
+        }
+
+        res.status(200).json({ message: 'Employee updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update employee' });
+    }
+})
+
+server.delete('/employees', async (req, res) => {
+    const { id } = req.body
+    if (typeof id !== 'number' || isNan(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include id of employee to delete if deleting from this endpoint' });
+        return
+    }
+
+    try {
+        const del_employee = await knex('employees').where('id', id).del();
+
+        if (del_employee) {
+            res.status(200).json({ message: 'Employee deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Employee not found' }); // If no rows were deleted
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete employee' });
+    }
+})
+
+// /employees/:id
+server.get('/employees/:id', async (req, res) => {
+    const { id } = req.params
+    if (typeof id !== 'number' || isNan(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. ID should be a number' });
+        return
+    }
+
+    try {
+        const emp = await knex('employees')
+                            .select('*')
+                            .where('id', id)
+        if (emp) {
+            res.status(200).send(emp)
+        }
+        else {
+            res.status(404).json({error: `Employee with id: ${id} not found`})
+        }
+    } catch (error) {
+        res.status(500).json({ error: `Failed to get employee with id: ${id}` });
+    }
+})
+
+server.post('/employees', (req, res) => {
+    res.status(400).json({ error: 'Unable to insert new employee at this endpoint. Please use /employees to insert'})
+})
+
+server.patch('/employees/:id', async (req, res) => {
+    const { id } = req.prams
+    try {
+        const { unit_id, name, age, gender, rank, } = req.body
+        const updates = { unit_id, name, age, gender, rank };
+        // removing undefined values to only keep the columns we want to p
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        // ensures there is an id present
+        if (typeof id !== 'number' || isNan(id)) {
+            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to update' });
+            return
+        }
+
+        // TODO input check the fields
+
+        // updates the employee
+        const updatedRows = await knex('employees')
+                .where('id', id)
+                .update(updates);
+
+        if (updatedRows === 0) {
+            res.status(404).json({ error: 'Employee not found' });
+            return
+        }
+
+        res.status(200).json({ message: 'Employee updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update employee' });
+    }
+})
+
+server.delete('/employees/:id', async (req, res) => {
+    const { id } = req.params
+    if (typeof id !== 'number' || isNan(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to delete' });
+        return
+    }
+
+    try {
+        const del = await knex('employees').where('id', id).del()
+        if (del) {
+            res.status(200).json({ message: `Employee with id: ${id}, deleted successfully` });
+        }
+        else {
+            res.status(404).json({ error: `Employee with id: ${id}, not found` });
+        }
+    } catch (error) {
+        res.status(500).json({ error: `Failed to delete employee with id: ${id}` });
+    }
+})
+
+// /employees/trainings
+server.get('/employees/trainings', async (req, res) => {
+    try {
+        const query = await knex('employee_trainings').select('*')
+
+        if (query.length > 0) {
+            res.status(200).json(query);
+        } else {
+            res.status(404).json({ error: 'No training records found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to query employee_trainings database'})
+    }
+})
+
+server.post('employee/trainings', async (req, res) => {
+    const { employee_id, training_id, date_completed } = req.body
+
+    // type checking input
+    if (
+        typeof employee_id !== 'number' ||
+        typeof training_id !== 'number' ||
+        typeof date_completed !== 'string' || isNaN(Date.parse(date_completed))
+    ) {
+        return res.status(400).json({ error: 'Invalid or missing fields' });
+    }
+
+    try {
+        const insert = await knex('employee_trainings').insert({ employee_id, training_id, date_completed })
+
+        if (insert.length > 0) {
+            res.status(201).json({ message: 'Employee training added successfully' });
+        } else {
+            res.status(400).json({ error: 'Failed to insert employee training' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+server.patch('employee/trainings', async (req, res) => {
+    const { id, employee_id, training_id, date_completed } = req.body
+    if (typeof id !== 'number' || isNan(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee_training record to patch' });
+        return
+    }
+
+        const updates = { employee_id, training_id, date_completed };
+        // removing undefined values to only keep the columns we want to p
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        // TODO input check the fields
+
+        try {
+            // updates the employee_training record
+            const updatedRows = await knex('employee_trainings')
+                    .where('id', id)
+                    .update(updates);
+
+            if (updatedRows === 0) {
+                res.status(404).json({ error: 'Employee training record not found' });
+                return
+            }
+
+            res.status(200).json({ message: 'Employee training record updated successfully' });
+        } catch (error) {
+            res.status(500).json({ error: 'Internal server issue'})
+        }
+})
+
+server.delete('employee/trainings', async (req, res) => {
+    const { id } = req.body
+    if (typeof id !== 'number' || isNan(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee_training record to delete' });
+        return
+    }
+
+    try {
+        // updates the employee_training record
+        const del = await knex('employee_trainings').where('id', id).del()
+
+        if (del === 0) {
+            res.status(404).json({ error: 'Employee training record not found' });
+            return
+        }
+
+        res.status(200).json({ message: 'Employee training record deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server issue'})
+    }
+})
+// /employees/trainings/:id
+/*
+For all CRUD operations on this route, the parameter ":training_id" does not correspond to the primary key of the employee_trainings database records.
+It is instead used to filter the employee_trainings database for records where the "training_id" is matched
+
+The primary key, id, should be included in the body of the request under the field "pk_id".
+This is required to PATCH and DELETE any record at this endpoint
+*/
+server.get('/employees/trainings/:training_id', async (req, res) => {
+    const { training_id } = req.params
+    if (typeof training_id !== 'number' || isNan(training_id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to get a list of employess who have completed it' });
+        return
+    }
+
+    try {
+        const query = await knex('employee_trainings')
+                            .select('*')
+                            .where('training_id', training_id)
+
+        if (query) {
+            res.status(200).json(query)
+        }
+        else {
+            res.status(404).json({ error: 'No employees found who have completed this training'})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error'})
+    }
+})
+
+/*
+For all CRUD operations on this route, the parameter ":training_id" does not correspond to the primary key of the employee_trainings database records.
+It is instead used to filter the employee_trainings database for records where the "training_id" is matched
+
+The primary key, id, should be included in the body of the request under the field "pk_id".
+This is required to PATCH and DELETE any record at this endpoint
+*/
+server.post('/employees/trainings/:training_id', async (req, res) => {
+    const { training_id } = req.params
+    if (typeof training_id !== 'number' || isNan(training_id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to insert an employee who has completed this training' });
+        return
+    }
+
+    const { user_id, date_completed } = req.body
+    const data_to_insert = {
+        training_id,
+        user_id,
+        date_completed
+    }
+
+    try {
+        const insert = await knex('employee_trainings').insert(data_to_insert)
+
+        if (insert) {
+            res.status(201).json({ error: `Employee training record for employee id: ${employee_id} successfully inserted.` })
+        } else {
+            res.status(400).json({ error: `Failed to insert employee training record for employee id: ${employee_id}.` });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error'})
+    }
+})
+
+/*
+For all CRUD operations on this route, the parameter ":training_id" does not correspond to the primary key of the employee_trainings database records.
+It is instead used to filter the employee_trainings database for records where the "training_id" is matched
+
+The primary key, id, should be included in the body of the request under the field "pk_id".
+If the training_id, is part of the fields to be updated, it should be included in the body as "new_training_id"
+This is required to PATCH and DELETE any record at this endpoint
+
+Correct request body example is as follows
+{
+    pk_id: 1,
+    employee_id: 2,
+    new_training_id: 4,
+    date_completed: 2002-08-12
+}
+*/
+server.patch('/employees/trainings/:training_id', async (req, res) => {
+    const { pk_id, employee_id, new_training_id, date_completed} = req.body
+    if (
+        typeof pk_id !== 'number' || isNaN(pk_id) ||
+        (new_training_id && typeof new_training_id !== 'number') ||
+        (employee_id && typeof employee_id !== 'number') ||
+        (date_completed && typeof date_completed !== 'string')
+    ) {
+        return res.status(400).json({ error: 'Invalid or missing fields. Ensure pk_id is a number, new_training_id is a number (if provided), \
+             employee_id is a number (if provided), and date_completed is a valid date string (if provided).' });
+    }
+
+    try {
+        const updates = {};
+
+        if (employee_id) updates.employee_id = employee_id;
+        if (new_training_id) updates.training_id = new_training_id;
+        if (date_completed) updates.date_completed = date_completed;
+
+        const updatedRows = await knex('employee_trainings')
+                                    .where('id', pk_id)
+                                    .update(updates);
+
+        if (!updatedRows) {
+            return res.status(404).json({ error: 'No matching record found to update' });
+        }
+
+        res.status(200).json({ message: `Employee training record with id ${pk_id} updated successfully` });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+/*
+For all CRUD operations on this route, the parameter ":training_id" does not correspond to the primary key of the employee_trainings database records.
+It is instead used to filter the employee_trainings database for records where the "training_id" is matched
+
+The primary key, id, should be included in the body of the request under the field "pk_id".
+If the training_id, is part of the fields to be updated, it should be included in the body as "new_training_id"
+This is required to PATCH and DELETE any record at this endpoint
+
+Correct request body example is as follows
+{
+    pk_id: 1,
+    employee_id: 2,
+    new_training_id: 4,
+    date_completed: 2002-08-12
+}
+*/
+server.delete('/employees/trainings/:training_id', async (req, res) => {
+    const { pk_id } = req.body
+    if (typeof pk_id !== 'number' || isNaN(pk_id)) {
+        return res.status(400).json({ error: 'Please ensure pk_id is a number and included in the request body'})
+    }
+
+    try {
+        const del = await knex('employee_trainings')
+                                .where('id', pk_id)
+                                .del()
+
+        if (del) {
+            res.status(200).json({ message: `Employee training record with id: ${id}, was successfully deleted`})
+        } else {
+            res.status(404).json({ error: `Employee training record with id: ${id}, not found`})
+        }
+
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error'})
+    }
+})
+
+
+// /trainings
+server.get('/trainings', async (req, res) => {
+    try {
+        const query = await knex('trainings')
+                                .select('*')
+        res.status(200).send(query)
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve trainings' });
+    }
+})
+
+server.post('/trainings', async (req, res) => {
+    const { name, duration, in_person, due_date} = re.body
+
+    const id = await knex('trainings').count('id') + 1
+    if ( id !== await knex('trainings').count('id') + 1){
+        return res.status(400).json({ message : 'Failed to insert new training.'})
+    }
+    if (
+        typeof name !== 'string' || name.trim() === ''||
+        typeof duration !== 'number' || duration === 0||
+        typeof in_person !== 'boolean' ||
+        typeof due_date !== 'number'
+        ){
+        return res.status(400).json({ message : 'Name must be string and not empty.'})
+    }
+    try {
+        const insert = await knex('training')
+                            .insert({training_id: id,
+                                name: name,
+                                duration: duration,
+                                in_person: in_person,
+                                due_date: due_date                            })
+
+        res.status(200).json({message : insert})
+    } catch(error){
+        res.status(500).json({error: 'Failed to created new training'})
+    }
+
+})// /traingings/:id
+// /traingings/employees
+// /traingings/employees/:id
+
+
+server.get('/trainings/:id', async (req, res) => {
+    const { id } = req.params
+    try {
+        const query = await knex('trainings')
+                                .select('*')
+                                .where(training.id, id)
+        res.status(200).send(query)
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve trainings' });
+    }
+})
+
+server.patch('/trainings/:id', async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const { training_id, name, duration, in_person, due_date } = req.body
+        const updates = { training_id, name, duration, in_person, due_date };
+        // removing undefined values to only keep the columns we want to p
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        // ensures there is an id present
+        if (typeof id !== 'number' || isNan(id)) {
+            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to update' });
+            return
+        }
+
+        // TODO input check the fields
+
+        // updates the training
+        const updatedRows = await knex('trainings')
+                .where('id', id)
+                .update(updates);
+
+        if (updatedRows === 0) {
+            res.status(404).json({ error: 'Training not found' });
+            return
+        }
+
+        res.status(200).json({ message: 'Training updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update training' });
+    }
+})
+
+server.delete('/training/:id', async (req, res) =>{
+    const { id } = req.params
+    if(id > await knex('training').count('id')){
+        res.status(500).json({error: "Training id not found"})
+    }
+    try{
+        const deletedUnit = await knex('Training')
+                                    .select('*')
+                                    .where(unit_id, id)
+                                    .del()
+        res.status(200).json({message: 'Training successfully deleted'})
+    } catch(error) {
+        res.status(500).json({error: 'Failed to delete Training by id'})
+    }
+})
+
+// /physical_readiness_standards_men
+server.get('/physical_readiness_standards_men', async (req, res) => {
+    try {
+        const query = await knex('physical_readiness_standards_men').select('*')
+
+        if (query) {
+            res.status(200).json(query)
+        } else {
+            res.status(404).json({ error: 'No records found in the physical_readiness_standards_men table'})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error, unable to query physical_readiness_standards_men table'})
+    }
+})
+
+server.post('/physical_readiness_standards_men', async (req, res) => {
+    const {name, value} = req.body
+    if ((typeof name !== 'string' || name.trim() !== '') ||
+        (typeof value !== 'number' || isNaN(value))) {
+        return res.status(400).json({ error: 'Invalid or missing fields. Please include a name (string) and value (number) for this standard'})
+    }
+
+    try {
+        const insert_standard = await knex('physical_readiness_standards_men').insert(insert_standard)
+
+        if (insert_standard) {
+            res.status(200).json({ message: 'Men physical readiness standard successfully '})
+        } else {
+            res.status(404).json({ error: 'Men phyisical readiness standard could not be inserted'})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
+
+server.patch('/physical_readiness_standards_men', async (req, res) => {
+    const { id, name, value } = req.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Please include the id (number) for this standard'})
+    }
+
+    const updates = {};
+
+    if (name) updates.name = name;
+    if (value) updates.value = value;
+
+    try {
+        const updatedRows = await knex('physical_readiness_standards_men')
+                                    .where('id', id)
+                                    .update(updates)
+
+
+        if (!updatedRows) {
+            return res.status(404).json({ error: 'No matching record found to update' });
+        }
+
+        res.status(200).json({ message: `Men physicial readiness standard with id ${id} updated successfully` });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
+
+server.delete('/physical_readiness_standards_men', async (req, res) => {
+    const { id } = req.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Please include the id (number) for this standard'})
+    }
+
+    try {
+        const del = await knex('physical_readiness_standards_men')
+                            .where('id', id)
+                            .del()
+        if (del) {
+            res.status(200).json({ message: `Men physical readiness standard with id: ${id}, successfully deleted`})
+        } else {
+            res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
+
+// /physical_readiness_standards_women
+server.get('/physical_readiness_standards_women', async (req, res) => {
+    try {
+        const query = await knex('physical_readiness_standards_women').select('*')
+
+        if (query) {
+            res.status(200).json(query)
+        } else {
+            res.status(404).json({ error: 'No records found in the physical_readiness_standards_women table'})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error, unable to query physical_readiness_standards_women table'})
+    }
+})
+
+server.post('/physical_readiness_standards_women', async (req, res) => {
+    const {name, value} = req.body
+    if ((typeof name !== 'string' || name.trim() !== '') ||
+        (typeof value !== 'number' || isNaN(value))) {
+        return res.status(400).json({ error: 'Invalid or missing fields. Please include a name (string) and value (number) for this standard'})
+    }
+
+    try {
+        const insert_standard = await knex('physical_readiness_standards_women').insert(insert_standard)
+
+        if (insert_standard) {
+            res.status(200).json({ message: 'Women physical readiness standard successfully '})
+        } else {
+            res.status(404).json({ error: 'Women phyisical readiness standard could not be inserted'})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
+
+server.patch('/physical_readiness_standards_women', async (req, res) => {
+    const { id, name, value } = req.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Please include the id (number) for this standard'})
+    }
+
+    const updates = {};
+
+    if (name) updates.name = name;
+    if (value) updates.value = value;
+
+    try {
+        const updatedRows = await knex('physical_readiness_standards_women')
+                                    .where('id', id)
+                                    .update(updates)
+
+
+        if (!updatedRows) {
+            return res.status(404).json({ error: 'No matching record found to update' });
+        }
+
+        res.status(200).json({ message: `Women physicial readiness standard with id ${id} updated successfully` });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
+
+server.delete('/physical_readiness_standards_women', async (req, res) => {
+    const { id } = req.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Please include the id (number) for this standard'})
+    }
+
+    try {
+        const del = await knex('physical_readiness_standards_women')
+                            .where('id', id)
+                            .del()
+        if (del) {
+            res.status(200).json({ message: `Women physical readiness standard with id: ${id}, successfully deleted`})
+        } else {
+            res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Sever Error'})
+    }
+})
 
 
 module.exports = server
