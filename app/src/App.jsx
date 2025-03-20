@@ -1,33 +1,56 @@
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import Home from './components/Home/Home.jsx'
+import Personnel from './components/Personnel/Personnel.jsx'
+import Unit from './components/Unit/Unit.jsx'
+import Create from './components/Create/Create.jsx'
+import Training from './components/Training/Training.jsx'
+import { UserContext } from "./context/UserContext.jsx";
+
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { userID, setUserID } = useContext(UserContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("http://localhost:8081")
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+  });
+
+  const personnelNavClick = () => {
+    if (userID != null) {
+      navigate(`/Personnel/${userID}`);
+    } else {
+      navigate('/Personnel');
+    }
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <header>
+        <nav>
+          <button onClick={() => navigate('/')}>Home</button>
+          <button onClick={() => personnelNavClick(`/Personnel`)}>Personnel</button>
+          <button onClick={() => navigate('/Unit')}>Unit</button>
+          <button onClick={() => navigate('/Training')}>Training</button>
+          <button onClick={() => navigate('/Create')}>Create</button>
+        </nav>
+      </header>
+
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/Personnel' element={<Personnel />} />
+        <Route path='/Personnel/:id' element={<Personnel />} />
+        <Route path='/Unit' element={<Unit />} />
+        <Route path='/Unit/:id' element={<Unit />} />
+        <Route path='/Training' element={<Training />} />
+        <Route path='/Create' element={<Create />} />
+      </Routes>
     </>
   )
 }

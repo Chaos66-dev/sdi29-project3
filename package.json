@@ -15,5 +15,8 @@
     "url": "https://github.com/Chaos66-dev/sdi29-project3/issues"
   },
   "homepage": "https://github.com/Chaos66-dev/sdi29-project3#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "react-router-dom": "^7.4.0"
+  }
 }

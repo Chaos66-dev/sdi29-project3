@@ -1,0 +1,98 @@
+/* Main Container */
+.unit-container {
+    text-align: center;
+    padding: 40px;
+    font-family: "Arial", sans-serif;
+  }
+
+  /* Subtitle Styling */
+.unit-subtitle {
+    font-size: 18px;
+    font-weight: normal;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+  /* Flexbox for Input & Button */
+  .unit-input-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  /* Input Field Styling */
+  .unit-input {
+    padding: 8px;
+    width: 220px;
+    font-size: 14px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+  }
+
+  /* Input Focus Effect */
+  .unit-input:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 8px rgba(0, 91, 187, 0.5);
+  }
+
+  /* Fetch Button Styling */
+  .fetch-button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    margin-left: 10px;
+  }
+
+  /* Button Hover Effect */
+  .fetch-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+
+  /* Button Click Effect */
+  .fetch-button:active {
+    transform: scale(0.98);
+  }
+
+  /* Error Message Styling */
+  .error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  /* Results Section */
+  .unit-results {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+  }
+
+  /* List Styling */
+  .unit-results ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .unit-results li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  /* Last Item Border Removal */
+  .unit-results li:last-child {
+    border-bottom: none;
+  }
