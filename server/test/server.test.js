@@ -17,15 +17,15 @@ describe('GET /', () => {
 describe('GET /units', () => {
     it('should return an object with a 200 status', async () => {
         const res = await request(server).get('/units'); // Supertest makes the GET request
-        // console.log('Response:', res.status, res.body); // Log response for debugging
+        console.log('Response:', res.status, res.body); // Log response for debugging
         expect(res.status).to.equal(200);
-        // console.log('passed 200 assertion')
+        console.log('passed 200 assertion')
         expect(res.body).to.be.an('array');
-        // console.log('passed array assertion')
-        // console.log(res.body[0])
-        // console.log(typeof res.body[0])
+        console.log('passed array assertion')
+        console.log(res.body[0])
+        console.log(typeof res.body[0])
         expect(res.body[0]).to.be.an('object');
-        // console.log('passed 1st index object assertion')
-        expect(res.body[0].name).to.equal('Unit 1');
+        console.log('passed 1st index object assertion')
+        expect(res.body[0].name).to.equal('Orbital Warfare Squadron');
     });
 });

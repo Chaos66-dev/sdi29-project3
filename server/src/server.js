@@ -24,7 +24,7 @@ server.get('/units', async (req, res) => {
     try {
         const query = await knex('units')
                                 .select('*')
-                                .orderby('id')
+                                .orderBy('id')
         res.status(200).send(query)
     } catch (error) {
         console.error('Error fetching units:', error);
