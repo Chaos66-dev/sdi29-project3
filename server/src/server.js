@@ -7,7 +7,7 @@ const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'de
 server.use(cors()); // Enable CORS for all origins
 
 server.get('/',  (req, res) =>  {
-    res.status(200).send("I am working")
+    res.status(200).json({message: "I am working"})
 });
 
 // ALL POSTS AND PATCHES NEED SOME FORM OF INPUT CHECKING TO ENSURE THE DATA IS IN THE CORRECT FORMAT

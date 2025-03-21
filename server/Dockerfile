@@ -22,4 +22,6 @@ RUN chmod +x /usr/local/bin/wait-for-it.sh
 EXPOSE 8081
 
 # How do you start your app?
-CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm start"]
+# TODO uncomment for prod
+# CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm start"]
+CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm dev"]
