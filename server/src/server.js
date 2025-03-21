@@ -2,6 +2,8 @@ const express = require('express');
 const server = express();
 
 server.use(express.json());
+const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
+
 
 server.get('/',  (req, res) =>  {
     res.status(200).send("I am working")
@@ -59,8 +61,8 @@ server.get('/units/:id', async (req, res) =>{
 server.patch('/units/:id', async (req, res) =>{
     const { id } = req.params
     try {
-        const { unit_id, name, age, gender, rank } = req.body
-        const updates = { unit_id, name, age, gender, rank };
+        const { unit_id, name, age, sex, rank } = req.body
+        const updates = { unit_id, name, age, sex, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -111,13 +113,13 @@ server.get('/employees', async (req, res) => {
         const query = await knex('employees')
                                 .select('*')
         res.status(200).send(query)
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to retrieve employees' });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to retrieve employees' , e});
     }
 })
 
 server.post('/employees', async (req, res) => {
-    const {name, age, rank, unit_id, gender} = req.body
+    const {name, age, rank, unit_id, sex} = req.body
 
     // input checking of the req.body
     if (
@@ -125,14 +127,14 @@ server.post('/employees', async (req, res) => {
         typeof age !== 'number' || isNaN(age) ||
         typeof rank !== 'string' || rank.trim() === '' ||
         typeof unit_id !== 'number' || isNaN(unit_id) ||
-        typeof gender !== 'string' || gender.trim() === ''
+        typeof sex !== 'string' || sex.trim() === ''
     ) {
         res.status(400).json({ error: 'Invalid or missing fields' });
         return
     }
 
     try {
-        const insert = await knex('employees').insert({name, age, rank, unit_id, gender})
+        const insert = await knex('employees').insert({name, age, rank, unit_id, sex})
 
         if (insert.length > 0) {
             res.status(201).json({ message: 'Employee added successfully' });
@@ -146,8 +148,8 @@ server.post('/employees', async (req, res) => {
 
 server.patch('/employees', async (req, res) => {
     try {
-        const { id, unit_id, name, age, gender, rank, } = req.body
-        const updates = { id, unit_id, name, age, gender, rank };
+        const { id, unit_id, name, age, sex, rank, } = req.body
+        const updates = { id, unit_id, name, age, sex, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -213,8 +215,8 @@ server.get('/employees/:id', async (req, res) => {
         else {
             res.status(404).json({error: `Employee with id: ${id} not found`})
         }
-    } catch (error) {
-        res.status(500).json({ error: `Failed to get employee with id: ${id}` });
+    } catch (e) {
+        res.status(500).json({ error: `Failed to get employee with id: ${id}`, e });
     }
 })
 
@@ -225,8 +227,8 @@ server.post('/employees', (req, res) => {
 server.patch('/employees/:id', async (req, res) => {
     const { id } = req.prams
     try {
-        const { unit_id, name, age, gender, rank, } = req.body
-        const updates = { unit_id, name, age, gender, rank };
+        const { unit_id, name, age, sex, rank, } = req.body
+        const updates = { unit_id, name, age, sex, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 

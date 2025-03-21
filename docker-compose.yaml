@@ -1,13 +1,25 @@
 services:
   app:
     build: ./app
+    image: project3_ui
     container_name: project-3-ui
     ports:
       - "1000:8080"
     depends_on:
-      - api
+      - server
   server:
     build: ./server
+    image: project3_server
     container_name: project-3-server
     ports:
       - "4000:8081"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    container_name: project-3-database
+    env_file:
+      - .env
