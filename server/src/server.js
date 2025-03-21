@@ -598,6 +598,7 @@ server.post('/trainings', async (req, res) => {
     }
 
 })
+
 // /traingings/:id
 // /traingings/employees
 // /traingings/employees/:id
