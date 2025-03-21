@@ -42,7 +42,7 @@ function Create() {
                     setSelectedUnit(value);
 
                     document.getElementById('unit-id-input').setAttribute('value', selectedUnit.id);
-                    document.getElementById('unit-id-name').setAttribute('value', selectedUnit.name);
+                    document.getElementById('unit-name-input').setAttribute('value', selectedUnit.name);
                 }} />
                 <input type="text" placeholder="Unit ID" id='unit-id-input' />
                 <input type="text" placeholder="Unit Name" id='unit-name-input' />
