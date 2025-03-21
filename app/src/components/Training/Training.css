@@ -37,11 +37,6 @@ ul {
   font-weight: bold;
 }
 
-.available-data {
-  font-weight: bold;
-}
-
-.completed-data {
-  color: blue;
+.available-data, .completed-data {
   font-weight: bold;
 }
