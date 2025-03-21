@@ -39,12 +39,13 @@ function Create() {
             <form>
                 <h2>Update Unit</h2>
                 <UnitDropdown onSelect={(value) => {
-                    // console.log(selectedUnit.name);
                     setSelectedUnit(value);
-                    // document.getElementById('unit-id-input').setAttribute('value', selectedUnit.id);
+
+                    document.getElementById('unit-id-input').setAttribute('value', selectedUnit.id);
+                    document.getElementById('unit-id-name').setAttribute('value', selectedUnit.name);
                 }} />
-                <input type="text" placeholder="Unit ID" id='unit-id-input' value={selectedUnit.id} />
-                <input type="text" placeholder="Unit Name" id='unit-name-input' value={selectedUnit.name} />
+                <input type="text" placeholder="Unit ID" id='unit-id-input' />
+                <input type="text" placeholder="Unit Name" id='unit-name-input' />
                 <input type='button' value='Update' onClick={() => {
 
                 }} />

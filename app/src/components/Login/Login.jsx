@@ -6,6 +6,28 @@ import { UserContext } from "../../context/UserContext.jsx";
 
 function Login() {
     const { userID, setUserID } = useContext(UserContext);
+    const [errorMessage, setErrorMessage] = useState(false);
+
+
+    useEffect(() => {
+        if(userID != null) {
+            fetch(`http://localhost:4000/employees/`)
+            .then((res) => {
+                if (userID === id.length + 1) {
+                    setErrorMessage(true)
+            }
+               return res.json()
+        })
+            .then((data) => setPersonnelData(data))
+              .catch((error) => {
+                console.error('Error fetching data:', error);
+                setErrorMessage(true)
+            });
+
+        } else {
+            setErrorMessage(true);
+        }
+    }, []);
 
     const enterKeySearch = (event) => {
         if (event.key === 'Enter') {

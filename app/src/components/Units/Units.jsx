@@ -4,7 +4,7 @@ import "./Units.css";
 
 function Units() {
   const { userID, unitID } = useContext(UserContext); // User's assigned Unit ID
-  const [unitId, setUnitId] = useState(unitID || ""); // Auto-fill if available
+  const [unitId, setUnitId] = useState(unitID || "");
   const [unit, setUnit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,7 +31,7 @@ function Units() {
       })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setUnit(data[0]); // Extract first item from array
+          setUnit(data[0]);
         } else {
           setUnit(null);
           setError("Unit not found.");
