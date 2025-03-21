@@ -31,17 +31,34 @@ server.get('/units', async (req, res) => {
     }
 })
 
-// Change check logic for the count to be the last resort with a check to make sure we are using up the numbers that may have been deleted
+// Should be fixed needs testing to ensure id's are handled correctly
 server.post('/units', async (req, res) => {
-    const name = re.body
+    const { name } = re.body
+    let unit_id = 0
 
-    const id = await knex('units').count('id') + 1
-    if ( id !== await knex('units').count('id') + 1){
-        return res.status(400).json({ message : 'Failed to insert new unit.'})
-    }
     if ( typeof name !== string || name.trim() === ''){
         return res.status(400).json({ message : 'Name must be string and not empty.'})
     }
+
+    try {
+        const existingdIds = await knex('units').pluck('unit_id')
+        const maxId = Math.max(...existingIds);
+        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
+        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
+
+        if(unusedIds.length > 0){
+            unit_id = unusedIds[0]
+        } else{
+            unit_id = allPossibleIds.length + 1
+        }
+    } catch (error){
+        res.status(500).json({error: 'Failed to created new unit'})
+    }
+    
+    if ( unit_id == 0 ){
+        return res.status(400).json({ message : 'Failed to insert new unit.'})
+    }
+
     try {
         const insert = await knex('units').insert({unit_id,name})
 
