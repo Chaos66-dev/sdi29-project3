@@ -17,7 +17,7 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:8081")
+    fetch("http://localhost:4000")
       .then((res) => res.json())
       .then((data) => console.log(data))
   });
@@ -36,6 +36,7 @@ function App() {
         <nav>
           <button onClick={() => navigate('/')}>Home</button>
           <button onClick={() => personnelNavClick(`/Personnel`)}>Personnel</button>
+          {/* <button onClick={() => navigate('/Personnel')}>Personnel</button> */}
           <button onClick={() => navigate('/Unit')}>Unit</button>
           <button onClick={() => navigate('/Training')}>Training</button>
           <button onClick={() => navigate('/Create')}>Create</button>

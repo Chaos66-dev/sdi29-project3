@@ -11,9 +11,9 @@ function Personnel() {
 
     useEffect(() => {
     if(userID != null) {
-        fetch(`http://localhost:8081/personnel?userID=${userID}`)
-          .then((res) => res.json())
-          .then((data) => setPersonnelData(data))
+        fetch(`http://localhost:4000/employees?userID=${userID}`)
+        .then((res) => res.json())
+        .then((data) => setPersonnelData(data))
           .catch((error) => {
             console.error('Error fetching data:', error);
             setErrorMessage(true)
@@ -41,29 +41,17 @@ function Personnel() {
 
     return (
         <>
-        <Link to = {`/Unit/:${userID}`}><button>Unit</button></Link>
+        {/* <Link to = {`/Unit/:${userID}`}><button>Unit</button></Link> */}
             <h1>Personnel Page</h1>
-            <p className = "name">Name: {e.name}</p>
-            <p className = "rank">Rank: {e.rank}</p>
-            <p className = "age">Age: {e.age}</p>
-            <p className = "gender">Gender: {e.gender}</p>
+        {personnelData.map((employees) => (
+        <div key={employees.id}>
+            <p className = "name">Name: {employees.name}</p>
+            <p className = "rank">Rank: {employees.rank}</p>
+            <p className = "age">Age: {employees.age}</p>
+            <p className = "gender">Gender: {employees.sex}</p>
+        </div>
+        ))}
             <h2>Task List</h2>
-
-            <LoginLogoutMessage />
-
-            <form>
-                <label>User ID: </label>
-                <input id='user-id-input' type='text' onKeyDown={enterKeySearch}/>
-
-                <input type='button' value='Sign In' onClick={() => {
-                    setUserID(document.getElementById('user-id-input').value);
-             }} />
-
-                {/* When clicked, clears the user id cookie */}
-                <input type='button' value='Sign Out' onClick={() => {
-                    setUserID('');
-                }} />
-            </form>
         </>
     );
 }

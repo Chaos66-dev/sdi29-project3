@@ -1,28 +1,26 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from 'react'
 import "./UnitDropdown.css";
 
-function UnitDropdown() {
+function UnitDropdown( {onSelect}) {
     const [units, setUnits] = useState([]);
-    const [selectedUnit, setSelectedUnit] = useState('');
 
     useEffect(() => {
-        fetch('TODO')
+        fetch('http://127.0.0.1:4000/units')
             .then(response => response.json())
             .then(data => {
                 setUnits(data);
             })
             .catch(error => {
                 console.error('Error fetching units for dropdown:', error);
-            }
-            )
+            });
     }, []);
 
     return (
-        <select value={selectedUnit} onChange={(e) => setSelectedUnit(e.target.value)}>
-            <option value='' disabled> -- Select a unit -- </option>
-            {options.map((option) => (
-                <option key={option.id} value={option.id}>
-                    {option.name}
+        <select onChange={(e) => onSelect(e.target.value)}>
+            <option value='' disabled selected> -- Select a unit -- </option>
+            {units.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                    {unit.name}
                 </option>
             ))}
         </select>

@@ -27,16 +27,10 @@ ul {
   border-left: 3px solid #ccc;
 }
 
-.overdue-data {
+details.overdue li {
   color: red;
-  font-weight: bold;
 }
 
-.almost-data {
+details.almost-due li {
   color: orange;
-  font-weight: bold;
-}
-
-.available-data, .completed-data {
-  font-weight: bold;
 }
