@@ -24,4 +24,4 @@ EXPOSE 8081
 # How do you start your app?
 # TODO uncomment for prod
 # CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm start"]
-CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm dev"]
+CMD ["sh", "-c", "wait-for-it.sh db:5432 -- npx knex migrate:rollback --all && npx knex migrate:latest && npx knex seed:run && npm run dev"]

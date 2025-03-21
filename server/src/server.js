@@ -24,8 +24,9 @@ server.get('/units', async (req, res) => {
     try {
         const query = await knex('units')
                                 .select('*')
-        res.status(200).send(query)
+        res.status(200).json(query)
     } catch (error) {
+        console.error('Error fetching units:', error);
         res.status(500).json({ error: 'Failed to retrieve units' });
     }
 })
