@@ -1,0 +1,13 @@
+services:
+  app:
+    build: ./app
+    container_name: project-3-ui
+    ports:
+      - "1000:8080"
+    depends_on:
+      - api
+  server:
+    build: ./server
+    container_name: project-3-server
+    ports:
+      - "4000:8081"
