@@ -30,8 +30,8 @@ function Units() {
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setUnit(data[0]);
+        if (data && data.id) {
+          setUnit(data);
         } else {
           setUnit(null);
           setError("Unit not found.");

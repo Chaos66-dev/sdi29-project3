@@ -44,7 +44,7 @@ function Personnel() {
 
     return (
         <>
-        <Link to = {`/Unit/${userID}`}><button>My Unit</button></Link>
+        <Link to = {`/Units/${personnelData[0]?.unit_id}`}><button>My Unit</button></Link>
             <h1>Personnel Page</h1>
         {personnelData.map((employee) => (
         <div key={employee.id}>
