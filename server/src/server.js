@@ -808,7 +808,11 @@ server.patch('/physical_readiness_standards_women', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Internal Sever Error'})
     }
-})const { id, name, value } = req.body
+})
+
+server.delete('/physical_readiness_standards_women', async (req, res) => {
+    const { name, value } = req.body
+    const id = parseInt(req.body.id)
     try {
         const del = await knex('physical_readiness_standards_women')
                             .where('id', id)
