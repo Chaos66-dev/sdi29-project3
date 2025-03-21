@@ -1,7 +1,6 @@
 const cors = require('cors');
 const express = require('express');
 const server = express();
-const cors = require('cors');
 
 server.use(express.json());
 const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
@@ -33,15 +32,15 @@ server.get('/units', async (req, res) => {
 
 // Should be fixed needs testing to ensure id's are handled correctly
 server.post('/units', async (req, res) => {
-    const { name } = re.body
+    const { name } = req.body
     let unit_id = 0
-
-    if ( typeof name !== string || name.trim() === ''){
+    console.log(name)
+    if ( typeof name !== "string" || name.trim() === ''){
         return res.status(400).json({ message : 'Name must be string and not empty.'})
     }
 
     try {
-        const existingdIds = await knex('units').pluck('unit_id')
+        const existingdIds = await knex('units').pluck('id')
         const maxId = Math.max(...existingIds);
         const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
         const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
