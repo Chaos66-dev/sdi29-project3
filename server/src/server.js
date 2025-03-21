@@ -8,7 +8,7 @@ const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'de
 server.use(cors()); // Enable CORS for all origins
 
 server.get('/',  (req, res) =>  {
-    res.status(200).send("I am working")
+    res.status(200).json({message: "I am working"})
 });
 
 // ALL POSTS AND PATCHES NEED SOME FORM OF INPUT CHECKING TO ENSURE THE DATA IS IN THE CORRECT FORMAT
@@ -406,7 +406,7 @@ This is required to PATCH and DELETE any record at this endpoint
 
 // Checked
 server.get('/employees/trainings/:training_id', async (req, res) => {
-    const { training_id } = req.params
+    const training_id = parseInt(req.params.training_id)
     if (typeof training_id !== 'number' || isNaN(training_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to get a list of employess who have completed it' });
         return
@@ -438,7 +438,7 @@ This is required to PATCH and DELETE any record at this endpoint
 
 // Check above for updates
 server.post('/employees/trainings/:training_id', async (req, res) => {
-    const { training_id } = req.params
+    const training_id = parseInt(req.params.training_id)
     if (typeof training_id !== 'number' || isNaN(training_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to insert an employee who has completed this training' });
         return
@@ -534,7 +534,7 @@ Correct request body example is as follows
 
 // Checked
 server.delete('/employees/trainings/:training_id', async (req, res) => {
-    const { pk_id } = req.body
+    const pk_id = parseInt(req.body.pk_id)
     if (typeof pk_id !== 'number' || isNaN(pk_id)) {
         return res.status(400).json({ error: 'Please ensure pk_id is a number and included in the request body'})
     }
@@ -597,7 +597,8 @@ server.post('/trainings', async (req, res) => {
         res.status(500).json({error: 'Failed to created new training'})
     }
 
-})// /traingings/:id
+})
+// /traingings/:id
 // /traingings/employees
 // /traingings/employees/:id
 
