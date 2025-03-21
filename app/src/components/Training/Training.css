@@ -34,3 +34,12 @@ details.overdue li {
 details.almost-due li {
   color: orange;
 }
+
+.available-data {
+  font-weight: bold;
+}
+
+.available-data strong {
+  color: green;
+  border-bottom: 3px solid white;
+}

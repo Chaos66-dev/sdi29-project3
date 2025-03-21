@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from './components/Home/Home.jsx'
 import Personnel from './components/Personnel/Personnel.jsx'
-import Unit from './components/Unit/Unit.jsx'
+import Units from './components/Units/Units.jsx'
 import Create from './components/Create/Create.jsx'
 import Training from './components/Training/Training.jsx'
 import { UserContext } from "./context/UserContext.jsx";
@@ -37,7 +37,7 @@ function App() {
           <button onClick={() => navigate('/')}>Home</button>
           <button onClick={() => personnelNavClick(`/Personnel`)}>Personnel</button>
           {/* <button onClick={() => navigate('/Personnel')}>Personnel</button> */}
-          <button onClick={() => navigate('/Unit')}>Unit</button>
+          <button onClick={() => navigate('/Units')}>Units</button>
           <button onClick={() => navigate('/Training')}>Training</button>
           <button onClick={() => navigate('/Create')}>Create</button>
         </nav>
@@ -47,8 +47,8 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/Personnel' element={<Personnel />} />
         <Route path='/Personnel/:id' element={<Personnel />} />
-        <Route path='/Unit' element={<Unit />} />
-        <Route path='/Unit/:id' element={<Unit />} />
+        <Route path='/Units' element={<Units />} />
+        <Route path='/Units/:id' element={<Units />} />
         <Route path='/Training' element={<Training />} />
         <Route path='/Create' element={<Create />} />
       </Routes>

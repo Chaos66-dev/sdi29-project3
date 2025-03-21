@@ -1,27 +1,32 @@
 import { useState, useEffect, useContext } from 'react'
 import './Personnel.css'
-import { Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { UserContext } from "../../context/UserContext.jsx";
 
 function Personnel() {
     const { userID, setUserID } = useContext(UserContext);
-
-    const [personnelData, setPersonnelData] = useState(null);
+    const [personnelData, setPersonnelData] = useState([]);
     const [errorMessage, setErrorMessage] = useState(false);
 
     useEffect(() => {
     if(userID != null) {
-        fetch(`http://localhost:4000/employees?userID=${userID}`)
-        .then((res) => res.json())
+        fetch(`http://localhost:4000/employees/${userID}`)
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error('User Not Found');
+        }
+           return res.json()
+    })
         .then((data) => setPersonnelData(data))
           .catch((error) => {
             console.error('Error fetching data:', error);
             setErrorMessage(true)
         });
+
     } else {
         setErrorMessage(true);
     }
-      }, []);
+}, [userID]);
 
     if (errorMessage) {
         return (
@@ -32,23 +37,21 @@ function Personnel() {
         );
     }
 
-    if (!personnelData) {
-        return (
+    if (!personnelData.length === 0) {
+        return
         <h2 className = "loading">Loading...</h2>
-    )};
-
-      const {name, rank, age, gender} = personnelData;
+    };
 
     return (
         <>
-        {/* <Link to = {`/Unit/:${userID}`}><button>Unit</button></Link> */}
+        <Link to = {`/Unit/${userID}`}><button>My Unit</button></Link>
             <h1>Personnel Page</h1>
-        {personnelData.map((employees) => (
-        <div key={employees.id}>
-            <p className = "name">Name: {employees.name}</p>
-            <p className = "rank">Rank: {employees.rank}</p>
-            <p className = "age">Age: {employees.age}</p>
-            <p className = "gender">Gender: {employees.sex}</p>
+        {personnelData.map((employee) => (
+        <div key={employee.id}>
+            <p className = "name">Name: {employee.name}</p>
+            <p className = "rank">Rank: {employee.rank}</p>
+            <p className = "age">Age: {employee.age}</p>
+            <p className = "gender">Gender: {employee.sex}</p>
         </div>
         ))}
             <h2>Task List</h2>

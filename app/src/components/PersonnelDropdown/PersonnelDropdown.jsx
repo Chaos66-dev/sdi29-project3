@@ -16,10 +16,10 @@ function PersonnelDropdown( {onSelect}) {
     }, []);
 
     return (
-        <select onChange={(e) => onSelect(e.target.value)}>
+        <select onChange={(e) => onSelect(JSON.parse(e.target.value))}>
             <option value='' disabled selected> -- Select an employee -- </option>
             {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
+                <option key={employee.id} value={JSON.stringify(employee)}>
                     {employee.name}
                 </option>
             ))}

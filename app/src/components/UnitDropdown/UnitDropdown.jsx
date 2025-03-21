@@ -16,10 +16,10 @@ function UnitDropdown( {onSelect}) {
     }, []);
 
     return (
-        <select onChange={(e) => onSelect(e.target.value)}>
+        <select onChange={(e) => onSelect(JSON.parse(e.target.value))}>
             <option value='' disabled selected> -- Select a unit -- </option>
             {units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
+                <option key={unit.id} value={JSON.stringify(unit)}>
                     {unit.name}
                 </option>
             ))}
