@@ -24,6 +24,7 @@ server.get('/units', async (req, res) => {
     try {
         const query = await knex('units')
                                 .select('*')
+                                .orderby('id')
         res.status(200).send(query)
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve units' });
@@ -32,41 +33,43 @@ server.get('/units', async (req, res) => {
 
 // Should be fixed needs testing to ensure id's are handled correctly
 server.post('/units', async (req, res) => {
-    const { name } = req.body
-    let unit_id = 0
-    console.log(name)
-    if ( typeof name !== "string" || name.trim() === ''){
-        return res.status(400).json({ message : 'Name must be string and not empty.'})
+    const { name } = req.body;
+
+    // Validate 'name'
+    if (typeof name !== "string" || name.trim() === '') {
+        return res.status(400).json({ message: 'Name must be a non-empty string.' });
     }
 
     try {
-        const existingdIds = await knex('units').pluck('id')
-        const maxId = Math.max(...existingIds);
+        // Fetch all existing unit IDs
+        const existingIds = await knex('units').pluck('id');
+
+        // Find the maximum ID and determine the next available ID
+        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
         const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
         const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
 
-        if(unusedIds.length > 0){
-            unit_id = unusedIds[0]
-        } else{
-            unit_id = allPossibleIds.length + 1
-        }
-    } catch (error){
-        res.status(500).json({error: 'Failed to created new unit'})
-    }
-    
-    if ( unit_id == 0 ){
-        return res.status(400).json({ message : 'Failed to insert new unit.'})
-    }
+        // Determine the unit_id
+        const unit_id = unusedIds.length > 0 
+            ? unusedIds[0]  // Select the first unused ID from the list
+            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
 
-    try {
-        const insert = await knex('units').insert({unit_id,name})
 
-        res.status(200).json({message : insert})
-    } catch(error){
-        res.status(500).json({error: 'Failed to created new unit'})
+        console.log(`Generated unit_id: ${unit_id}`); // Debug logging
+
+        // Insert the new unit
+        const insert = await knex('units').insert({ id: unit_id, name: name });
+
+        // Respond with success
+        return res.status(201).json({
+            message: `Unit created successfully with ${unit_id} id`,
+        });
+    } catch (error) {
+        console.error('Error during unit creation:', error); // Log error for debugging
+        return res.status(500).json({ error: 'Failed to create new unit.' });
     }
+});
 
-})
 
 // /units/:id
 // Slight rework of the logic needed if an id was deleted from the database the id might be right but higher than the total count which would never resolve correctly
@@ -151,7 +154,7 @@ server.get('/employees', async (req, res) => {
 
 // Would like to have some way to verify that the data was sent in the correct order somehow
 server.post('/employees', async (req, res) => {
-    const {name, age, rank, unit_id, gender} = req.body
+    const {name, age, rank, unit_id, sex} = req.body
 
     // input checking of the req.body
     if (
@@ -159,22 +162,39 @@ server.post('/employees', async (req, res) => {
         typeof age !== 'number' || isNaN(age) ||
         typeof rank !== 'string' || rank.trim() === '' ||
         typeof unit_id !== 'number' || isNaN(unit_id) ||
-        typeof gender !== 'string' || gender.trim() === ''
+        typeof sex !== 'string' || sex.trim() === ''
     ) {
+        console.log(`name: ${name} \nage: ${age} \nrank: ${rank} \nunit_id: ${unit_id} \sex: ${sex}`)
         res.status(400).json({ error: 'Invalid or missing fields' });
         return
     }
-
     try {
-        const insert = await knex('employees').insert({name, age, rank, unit_id, gender})
+        // Fetch all existing unit IDs
+        const existingIds = await knex('employees').pluck('id');
 
-        if (insert.length > 0) {
-            res.status(201).json({ message: 'Employee added successfully' });
-        } else {
-            res.status(400).json({ error: 'Failed to insert employee' });
-        }
+        // Find the maximum ID and determine the next available ID
+        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
+        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
+
+        // Determine the unit_id
+        const employee_id = unusedIds.length > 0 
+            ? unusedIds[0]  // Select the first unused ID from the list
+            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
+
+
+        console.log(`Generated employee_id: ${employee_id}`); // Debug logging
+
+        // Insert the new unit
+        const insert = await knex('employees').insert({ id: employee_id, name: name, age: age, rank: rank, unit_id: unit_id, sex: sex });
+
+        // Respond with success
+        return res.status(201).json({
+            message: `Employee created successfully with ${employee_id} id`,
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error during unit creation:', error); // Log error for debugging
+        return res.status(500).json({ error: 'Failed to create new unit.' });
     }
 })
 
