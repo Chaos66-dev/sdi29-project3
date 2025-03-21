@@ -2,15 +2,21 @@ const express = require('express');
 const server = express();
 
 server.use(express.json());
-const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
-
 
 server.get('/',  (req, res) =>  {
     res.status(200).send("I am working")
 });
 
+// ALL POSTS AND PATCHES NEED SOME FORM OF INPUT CHECKING TO ENSURE THE DATA IS IN THE CORRECT FORMAT
+// ALL POSTS NEED A WAY TO CHECK THROUGH THE DATABASE TO ENSURE THEY CAN ALLOCATE UNUSED ID'S AS A RESULT OF DELETIONS
+
+// Change check logic for the count to be the last resort with a check to make sure we are using up the numbers that may have been deleted
+// Slight rework of the logic needed if an id was deleted from the database the id might be right but higher than the total count which would never resolve correctly
+// the const that reads from the req.body is just assuming that the order of information is correct and fully there we have a check for empty keys but none for incorrect data types in the wrong field.
+
 // Routes to cover with all CRUD (GET, POST, PATCH, DELETE) functionality
 // /units
+// Should be fine
 server.get('/units', async (req, res) => {
     try {
         const query = await knex('units')
@@ -21,6 +27,7 @@ server.get('/units', async (req, res) => {
     }
 })
 
+// Change check logic for the count to be the last resort with a check to make sure we are using up the numbers that may have been deleted
 server.post('/units', async (req, res) => {
     const name = re.body
 
@@ -32,7 +39,7 @@ server.post('/units', async (req, res) => {
         return res.status(400).json({ message : 'Name must be string and not empty.'})
     }
     try {
-        const insert = await knex('units').insert({unitiid: d,nname: ame})
+        const insert = await knex('units').insert({unit_id,name})
 
         res.status(200).json({message : insert})
     } catch(error){
@@ -42,6 +49,7 @@ server.post('/units', async (req, res) => {
 })
 
 // /units/:id
+// Slight rework of the logic needed if an id was deleted from the database the id might be right but higher than the total count which would never resolve correctly
 server.get('/units/:id', async (req, res) =>{
     const { id } = req.params
 
@@ -51,18 +59,19 @@ server.get('/units/:id', async (req, res) =>{
     try{
         const selectedUnit = await knex('units')
                                     .select('*')
-                                    .where(unit_id, id)
+                                    .where('unit_id', id)
         res.status(200).send(selectedUnit)
     } catch(error){
         res.status(500).json({error: 'Failed to retrieve unit by id'})
     }
 })
 
+// the const that reads from the req.body is just assuming that the order of information is correct and fully there we have a check for empty keys but none for incorrect data types in the wrong field.
 server.patch('/units/:id', async (req, res) =>{
     const { id } = req.params
     try {
-        const { unit_id, name, age, sex, rank } = req.body
-        const updates = { unit_id, name, age, sex, rank };
+        const { unit_id, name, age, gender, rank } = req.body
+        const updates = { unit_id, name, age, gender, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -90,6 +99,7 @@ server.patch('/units/:id', async (req, res) =>{
     }
 })
 
+// Same as the get logic if we submit a number higher than the total and the database has deleted information this will not work
 server.delete('/units/:id', async (req, res) =>{
     const { id } = req.params
     if(id > await knex('units').count('id')){
@@ -98,7 +108,7 @@ server.delete('/units/:id', async (req, res) =>{
     try{
         const deletedUnit = await knex('units')
                                     .select('*')
-                                    .where(unit_id, id)
+                                    .where('unit_id', id)
                                     .del()
         res.status(200).json({message: 'Unit successfully deleted'})
     } catch(error) {
@@ -108,18 +118,20 @@ server.delete('/units/:id', async (req, res) =>{
 })
 
 // /employees
+// Checked
 server.get('/employees', async (req, res) => {
     try {
         const query = await knex('employees')
                                 .select('*')
         res.status(200).send(query)
-    } catch (e) {
-        res.status(500).json({ error: 'Failed to retrieve employees' , e});
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve employees' });
     }
 })
 
+// Would like to have some way to verify that the data was sent in the correct order somehow
 server.post('/employees', async (req, res) => {
-    const {name, age, rank, unit_id, sex} = req.body
+    const {name, age, rank, unit_id, gender} = req.body
 
     // input checking of the req.body
     if (
@@ -127,14 +139,14 @@ server.post('/employees', async (req, res) => {
         typeof age !== 'number' || isNaN(age) ||
         typeof rank !== 'string' || rank.trim() === '' ||
         typeof unit_id !== 'number' || isNaN(unit_id) ||
-        typeof sex !== 'string' || sex.trim() === ''
+        typeof gender !== 'string' || gender.trim() === ''
     ) {
         res.status(400).json({ error: 'Invalid or missing fields' });
         return
     }
 
     try {
-        const insert = await knex('employees').insert({name, age, rank, unit_id, sex})
+        const insert = await knex('employees').insert({name, age, rank, unit_id, gender})
 
         if (insert.length > 0) {
             res.status(201).json({ message: 'Employee added successfully' });
@@ -146,10 +158,11 @@ server.post('/employees', async (req, res) => {
     }
 })
 
+// same as the above patch just need some sort of check for a missing id in the count we have so far
 server.patch('/employees', async (req, res) => {
     try {
-        const { id, unit_id, name, age, sex, rank, } = req.body
-        const updates = { id, unit_id, name, age, sex, rank };
+        const { id, unit_id, name, age, gender, rank, } = req.body
+        const updates = { id, unit_id, name, age, gender, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -177,6 +190,7 @@ server.patch('/employees', async (req, res) => {
     }
 })
 
+// Checked
 server.delete('/employees', async (req, res) => {
     const { id } = req.body
     if (typeof id !== 'number' || isNan(id)) {
@@ -198,6 +212,7 @@ server.delete('/employees', async (req, res) => {
 })
 
 // /employees/:id
+// Cheked
 server.get('/employees/:id', async (req, res) => {
     const { id } = req.params
     if (typeof id !== 'number' || isNan(id)) {
@@ -215,20 +230,22 @@ server.get('/employees/:id', async (req, res) => {
         else {
             res.status(404).json({error: `Employee with id: ${id} not found`})
         }
-    } catch (e) {
-        res.status(500).json({ error: `Failed to get employee with id: ${id}`, e });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to get employee with id: ${id}` });
     }
 })
 
+// Empty
 server.post('/employees', (req, res) => {
     res.status(400).json({ error: 'Unable to insert new employee at this endpoint. Please use /employees to insert'})
 })
 
+// Same as other patches
 server.patch('/employees/:id', async (req, res) => {
     const { id } = req.prams
     try {
-        const { unit_id, name, age, sex, rank, } = req.body
-        const updates = { unit_id, name, age, sex, rank };
+        const { unit_id, name, age, gender, rank, } = req.body
+        const updates = { unit_id, name, age, gender, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -256,6 +273,7 @@ server.patch('/employees/:id', async (req, res) => {
     }
 })
 
+// Checked
 server.delete('/employees/:id', async (req, res) => {
     const { id } = req.params
     if (typeof id !== 'number' || isNan(id)) {
@@ -277,6 +295,7 @@ server.delete('/employees/:id', async (req, res) => {
 })
 
 // /employees/trainings
+// Checked
 server.get('/employees/trainings', async (req, res) => {
     try {
         const query = await knex('employee_trainings').select('*')
@@ -291,6 +310,7 @@ server.get('/employees/trainings', async (req, res) => {
     }
 })
 
+// Check above for standard updates
 server.post('employee/trainings', async (req, res) => {
     const { employee_id, training_id, date_completed } = req.body
 
@@ -316,6 +336,7 @@ server.post('employee/trainings', async (req, res) => {
     }
 })
 
+//  Check above for updates
 server.patch('employee/trainings', async (req, res) => {
     const { id, employee_id, training_id, date_completed } = req.body
     if (typeof id !== 'number' || isNan(id)) {
@@ -346,6 +367,7 @@ server.patch('employee/trainings', async (req, res) => {
         }
 })
 
+// Checked
 server.delete('employee/trainings', async (req, res) => {
     const { id } = req.body
     if (typeof id !== 'number' || isNan(id)) {
@@ -375,6 +397,8 @@ It is instead used to filter the employee_trainings database for records where t
 The primary key, id, should be included in the body of the request under the field "pk_id".
 This is required to PATCH and DELETE any record at this endpoint
 */
+
+// Checked
 server.get('/employees/trainings/:training_id', async (req, res) => {
     const { training_id } = req.params
     if (typeof training_id !== 'number' || isNan(training_id)) {
@@ -405,6 +429,8 @@ It is instead used to filter the employee_trainings database for records where t
 The primary key, id, should be included in the body of the request under the field "pk_id".
 This is required to PATCH and DELETE any record at this endpoint
 */
+
+// Check above for updates
 server.post('/employees/trainings/:training_id', async (req, res) => {
     const { training_id } = req.params
     if (typeof training_id !== 'number' || isNan(training_id)) {
@@ -448,6 +474,8 @@ Correct request body example is as follows
     date_completed: 2002-08-12
 }
 */
+
+// Check above for updates
 server.patch('/employees/trainings/:training_id', async (req, res) => {
     const { pk_id, employee_id, new_training_id, date_completed} = req.body
     if (
@@ -497,6 +525,8 @@ Correct request body example is as follows
     date_completed: 2002-08-12
 }
 */
+
+// Checked
 server.delete('/employees/trainings/:training_id', async (req, res) => {
     const { pk_id } = req.body
     if (typeof pk_id !== 'number' || isNaN(pk_id)) {
@@ -521,6 +551,7 @@ server.delete('/employees/trainings/:training_id', async (req, res) => {
 
 
 // /trainings
+// Checked
 server.get('/trainings', async (req, res) => {
     try {
         const query = await knex('trainings')
@@ -531,6 +562,7 @@ server.get('/trainings', async (req, res) => {
     }
 })
 
+// Check above for updates
 server.post('/trainings', async (req, res) => {
     const { name, duration, in_person, due_date} = re.body
 
@@ -542,7 +574,7 @@ server.post('/trainings', async (req, res) => {
         typeof name !== 'string' || name.trim() === ''||
         typeof duration !== 'number' || duration === 0||
         typeof in_person !== 'boolean' ||
-        typeof due_date !== 'number'
+        typeof due_date !== 'number' || isNaN(due_date)
         ){
         return res.status(400).json({ message : 'Name must be string and not empty.'})
     }
@@ -554,7 +586,7 @@ server.post('/trainings', async (req, res) => {
                                 in_person: in_person,
                                 due_date: due_date                            })
 
-        res.status(200).json({message : insert})
+        res.status(200).send(insert)
     } catch(error){
         res.status(500).json({error: 'Failed to created new training'})
     }
@@ -563,19 +595,20 @@ server.post('/trainings', async (req, res) => {
 // /traingings/employees
 // /traingings/employees/:id
 
-
+// Checked
 server.get('/trainings/:id', async (req, res) => {
     const { id } = req.params
     try {
         const query = await knex('trainings')
                                 .select('*')
-                                .where(training.id, id)
+                                .where('training.id', id)
         res.status(200).send(query)
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve trainings' });
     }
 })
 
+// Check above for updates
 server.patch('/trainings/:id', async (req, res) => {
     const { id } = req.params
 
@@ -609,6 +642,7 @@ server.patch('/trainings/:id', async (req, res) => {
     }
 })
 
+// Checked
 server.delete('/training/:id', async (req, res) =>{
     const { id } = req.params
     if(id > await knex('training').count('id')){
@@ -617,7 +651,7 @@ server.delete('/training/:id', async (req, res) =>{
     try{
         const deletedUnit = await knex('Training')
                                     .select('*')
-                                    .where(unit_id, id)
+                                    .where('unit_id', id)
                                     .del()
         res.status(200).json({message: 'Training successfully deleted'})
     } catch(error) {
@@ -626,6 +660,7 @@ server.delete('/training/:id', async (req, res) =>{
 })
 
 // /physical_readiness_standards_men
+// Checked
 server.get('/physical_readiness_standards_men', async (req, res) => {
     try {
         const query = await knex('physical_readiness_standards_men').select('*')
@@ -640,6 +675,7 @@ server.get('/physical_readiness_standards_men', async (req, res) => {
     }
 })
 
+// Check above for the updates
 server.post('/physical_readiness_standards_men', async (req, res) => {
     const {name, value} = req.body
     if ((typeof name !== 'string' || name.trim() !== '') ||
@@ -660,6 +696,7 @@ server.post('/physical_readiness_standards_men', async (req, res) => {
     }
 })
 
+// Check above for updates
 server.patch('/physical_readiness_standards_men', async (req, res) => {
     const { id, name, value } = req.body
     if (typeof id !== 'number' || isNaN(id)) {
@@ -687,6 +724,7 @@ server.patch('/physical_readiness_standards_men', async (req, res) => {
     }
 })
 
+// Checked
 server.delete('/physical_readiness_standards_men', async (req, res) => {
     const { id } = req.body
     if (typeof id !== 'number' || isNaN(id)) {
@@ -708,6 +746,7 @@ server.delete('/physical_readiness_standards_men', async (req, res) => {
 })
 
 // /physical_readiness_standards_women
+// Checked
 server.get('/physical_readiness_standards_women', async (req, res) => {
     try {
         const query = await knex('physical_readiness_standards_women').select('*')
@@ -722,6 +761,7 @@ server.get('/physical_readiness_standards_women', async (req, res) => {
     }
 })
 
+// Check above for update
 server.post('/physical_readiness_standards_women', async (req, res) => {
     const {name, value} = req.body
     if ((typeof name !== 'string' || name.trim() !== '') ||
@@ -742,6 +782,7 @@ server.post('/physical_readiness_standards_women', async (req, res) => {
     }
 })
 
+// Check above for update
 server.patch('/physical_readiness_standards_women', async (req, res) => {
     const { id, name, value } = req.body
     if (typeof id !== 'number' || isNaN(id)) {
@@ -767,14 +808,7 @@ server.patch('/physical_readiness_standards_women', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Internal Sever Error'})
     }
-})
-
-server.delete('/physical_readiness_standards_women', async (req, res) => {
-    const { id } = req.body
-    if (typeof id !== 'number' || isNaN(id)) {
-        res.status(400).json({ error: 'Invalid or missing fields. Please include the id (number) for this standard'})
-    }
-
+})const { id, name, value } = req.body
     try {
         const del = await knex('physical_readiness_standards_women')
                             .where('id', id)
