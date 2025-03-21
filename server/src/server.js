@@ -1,7 +1,6 @@
 const cors = require('cors');
 const express = require('express');
 const server = express();
-const cors = require('cors');
 
 server.use(express.json());
 const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
