@@ -27,6 +27,7 @@ server.get('/units', async (req, res) => {
                                 .orderby('id')
         res.status(200).send(query)
     } catch (error) {
+        console.error('Error fetching units:', error);
         res.status(500).json({ error: 'Failed to retrieve units' });
     }
 })
@@ -50,7 +51,7 @@ server.post('/units', async (req, res) => {
         const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
 
         // Determine the unit_id
-        const unit_id = unusedIds.length > 0 
+        const unit_id = unusedIds.length > 0
             ? unusedIds[0]  // Select the first unused ID from the list
             : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
 
@@ -178,7 +179,7 @@ server.post('/employees', async (req, res) => {
         const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
 
         // Determine the unit_id
-        const employee_id = unusedIds.length > 0 
+        const employee_id = unusedIds.length > 0
             ? unusedIds[0]  // Select the first unused ID from the list
             : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
 
