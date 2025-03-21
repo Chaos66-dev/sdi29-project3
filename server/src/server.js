@@ -1,7 +1,10 @@
+const cors = require('cors');
 const express = require('express');
 const server = express();
 
 server.use(express.json());
+const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
+server.use(cors()); // Enable CORS for all origins
 
 server.get('/',  (req, res) =>  {
     res.status(200).send("I am working")
