@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from 'react'
 import './Create.css'
 
+import UnitDropdown from '../UnitDropdown/UnitDropdown.jsx';
+
 // This page is used for adding/renmoving units and personnel to the database
 
 // uses a fetched drop-down list of units and personnel
@@ -15,12 +17,10 @@ function Create() {
             <h1>Create</h1>
 
             <h2>Units</h2>
-
+            <UnitDropdown />
             <form>
 
-                <select>
-                    <option value='Select a unit'> -- Select a unit -- </option>
-                </select>
+
 
                 <input type="text" placeholder="Unit ID" id='unit-id-input'/>
                 <input type='button' value='Add Unit' onClick={() => {

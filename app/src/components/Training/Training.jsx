@@ -27,7 +27,6 @@ function Training() {
 
                 const trainings = await response.json();
 
-                // Categorize trainings based on due date
                 const today = new Date();
                 const categorizedData = {
                     completed: [],
@@ -63,7 +62,6 @@ function Training() {
     }, [userID]);
 
     if (loading) return <p className="loading">Loading trainings...</p>;
-    if (error) return <p className="error">{error}</p>;
 
     return (
         <div className="training-container">
