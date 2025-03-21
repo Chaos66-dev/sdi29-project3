@@ -17,6 +17,7 @@
   "homepage": "https://github.com/Chaos66-dev/sdi29-project3#readme",
   "description": "",
   "dependencies": {
+    "react-router-dom": "^7.4.0",
     "dotenv": "^16.4.7",
     "knex": "^3.1.0"
   }
