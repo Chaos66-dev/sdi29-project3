@@ -12,10 +12,13 @@ export function UserProvider({ children }) {
             fetch(`http://localhost:4000/employees/${userID}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    setUnitID(data.unit_id); // Store unitID from employee data
-                    setCookie('UNIT_ID', data.unit_id, 30);
+                    console.log("Fetched employee data:", data);
+                    const employee = Array.isArray(data) ? data[0] : data;
+
+                    setUnitID(employee.unit_id);
+                    setCookie('UNIT_ID', employee.unit_id, 30);
                 })
-                .catch(() => setUnitID('')); // Reset if fetch fails
+                .catch(() => setUnitID(''));
         } else {
             setUnitID('');
         }

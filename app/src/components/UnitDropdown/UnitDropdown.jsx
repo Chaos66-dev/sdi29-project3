@@ -13,7 +13,7 @@ function UnitDropdown( {onSelect}) {
             .catch(error => {
                 console.error('Error fetching units for dropdown:', error);
             });
-    }, []);
+    }, [units]);
 
     return (
         <select onChange={(e) => onSelect(JSON.parse(e.target.value))}>

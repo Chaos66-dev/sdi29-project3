@@ -6,10 +6,14 @@ import Units from './components/Units/Units.jsx'
 import Create from './components/Create/Create.jsx'
 import Training from './components/Training/Training.jsx'
 import { UserContext } from "./context/UserContext.jsx";
+import { ThemeContext, ToggleThemeProvider } from './context/ThemeContext.jsx'
+
+import { CssBaseline, Box, AppBar, Toolbar, Typography } from '@mui/material';
 
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { ThemeToggle } from './components/ThemeToggle/ThemeToggle.jsx'
 
 function App() {
   const { userID, setUserID } = useContext(UserContext);
@@ -31,7 +35,8 @@ function App() {
   }
 
   return (
-    <>
+    <ToggleThemeProvider>
+      <CssBaseline />
       <header>
         <nav>
           <button onClick={() => navigate('/')}>Home</button>
@@ -40,6 +45,7 @@ function App() {
           <button onClick={() => navigate('/Units')}>Units</button>
           <button onClick={() => navigate('/Training')}>Training</button>
           <button onClick={() => navigate('/Create')}>Create</button>
+          <ThemeToggle />
         </nav>
       </header>
 
@@ -52,7 +58,7 @@ function App() {
         <Route path='/Training' element={<Training />} />
         <Route path='/Create' element={<Create />} />
       </Routes>
-    </>
+    </ToggleThemeProvider>
   )
 }
 

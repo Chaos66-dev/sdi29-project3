@@ -6,8 +6,8 @@ exports.seed = async function(knex) {
   // Deletes ALL existing entries
   await knex('units').del()
   await knex('units').insert([
-    {name: 'Space Electronic Warfare Squadron' },
-    {name: 'Orbital Warfare Squadron' },
-    {name: 'Delta Intelligence Squadron' }
+    { name: 'Space Systems Command (SSC)' },
+    { name: 'Space Operations Command (SpOC)' },
+    { name: 'Delta 4 (Space Force) - Missile Warning' }
   ]);
 };
