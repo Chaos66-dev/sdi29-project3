@@ -621,6 +621,7 @@ server.post('/trainings', async (req, res) => {
         return res.status(400).json({ message : 'Incorrect input data'})
     }
     try {
+<<<<<<< HEAD
         const existingIds = await knex('training_courses').pluck('id');
 
         // Find the maximum ID and determine the next available ID
@@ -650,6 +651,22 @@ server.post('/trainings', async (req, res) => {
     } catch (error) {
         console.error('Error during training creation:', error); // Log error for debugging
         return res.status(500).json({ error: 'Failed to create new training.' });
+=======
+        const insert = await knex('training_courses')
+                            .insert({training_id: id,
+                                name: name,
+                                duration: duration,
+                                in_person: in_person,
+                                due_date: due_date})
+        if (insert.length == 1){
+            res.status(200).json(insert)
+        } else {
+            res.status(404).json({error: 'Could not add training'})
+        }
+
+    } catch(error){
+        res.status(500).json({error: 'Failed to created new training'})
+>>>>>>> 6b3081d (fixed server routes error codes and added additional unit testing for get routes)
     }
 
 })
