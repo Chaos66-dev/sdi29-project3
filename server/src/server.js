@@ -169,7 +169,7 @@ server.post('/employees', async (req, res) => {
         typeof unit_id !== 'number' || isNaN(unit_id) ||
         typeof sex !== 'string' || sex.trim() === ''
     ) {
-        console.log(`name: ${name} \nage: ${age} \nrank: ${rank} \nunit_id: ${unit_id} \sex: ${sex}`)
+        console.log(`name: ${name} \nage: ${age} \nrank: ${rank} \nunit_id: ${unit_id} \nsex: ${sex}`)
         res.status(400).json({ error: 'Invalid or missing fields' });
         return
     }
@@ -610,35 +610,46 @@ server.get('/trainings', async (req, res) => {
 
 // Check above for updates
 server.post('/trainings', async (req, res) => {
-    const { name, duration, in_person, due_date} = re.body
+    const { name, duration, in_person, due_date} = req.body
 
-    const id = await knex('training_courses').count('id') + 1
-    if ( id !== await knex('training_courses').count('id') + 1){
-        return res.status(400).json({ message : 'Failed to insert new training.'})
-    }
     if (
         typeof name !== 'string' || name.trim() === ''||
         typeof duration !== 'number' || duration === 0||
-        typeof in_person !== 'boolean' ||
-        typeof due_date !== 'number' || isNaN(due_date)
+        typeof due_date !== 'string' || due_date.trim() === ''
         ){
-        return res.status(400).json({ message : 'Name must be string and not empty.'})
+            console.log(`name: ${name} \nduration: ${duration} \nin_person: ${in_person} \ndue_date: ${due_date}`)
+        return res.status(400).json({ message : 'Incorrect input data'})
     }
     try {
-        const insert = await knex('training_courses')
-                            .insert({training_id: id,
-                                name: name,
-                                duration: duration,
-                                in_person: in_person,
-                                due_date: due_date})
-        if (insert.length == 1){
-            res.status(200).json(insert)
-        } else {
-            res.status(404).json({error: 'Could not add training'})
-        }
+        const existingIds = await knex('training_courses').pluck('id');
 
-    } catch(error){
-        res.status(500).json({error: 'Failed to created new training'})
+        // Find the maximum ID and determine the next available ID
+        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
+        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
+
+        // Determine the unit_id
+        const training_id = unusedIds.length > 0
+            ? unusedIds[0]  // Select the first unused ID from the list
+            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
+
+
+        console.log(`Generated trainging_id: ${training_id}`); // Debug logging
+
+        // Insert the new unit
+        const insert = await knex('training_courses').insert({ id: training_id, name: name, duration: duration, in_person: in_person, due_date: due_date });
+
+        // Respond with success
+        if (insert.length == 1){
+            res.status(201).json({
+                message: `Training created successfully with ${training_id} id`,
+            })
+        } else {
+            res.status(404).json({error: 'Training could not be created'})
+        }
+    } catch (error) {
+        console.error('Error during training creation:', error); // Log error for debugging
+        return res.status(500).json({ error: 'Failed to create new training.' });
     }
 
 })
