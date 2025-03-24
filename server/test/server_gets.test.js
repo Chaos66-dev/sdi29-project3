@@ -28,7 +28,7 @@ describe('GET /units', () => {
         // console.log(typeof res.body[0])
         expect(res.body[0]).to.be.an('object');
         // console.log('passed 1st index object assertion')
-        expect(res.body[0].name).to.equal('Orbital Warfare Squadron');
+        expect(res.body[0].name).to.equal('Space Electronic Warfare Squadron');
     });
 
     it('/units/:id should return an array of one unit with a 200 status', async () => {
@@ -37,7 +37,7 @@ describe('GET /units', () => {
         expect(res.body).to.be.an('array');
         expect(res.body[0]).to.be.an('object');
         expect(res.body[0].id).to.equal(2);
-        expect(res.body[0].name).to.equal("Space Electronic Warfare Squadron");
+        expect(res.body[0].name).to.equal("Orbital Warfare Squadron");
         expect(res.body.length).to.equal(1)
     });
   });
