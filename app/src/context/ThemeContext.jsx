@@ -1,18 +1,23 @@
 import React, { createContext, useMemo, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
+import { getCookie, setCookie } from '../utils/cookies.js';
 
 export const ThemeContext = createContext({
     toggleColorMode: () => { },
 });
 
 export function ToggleThemeProvider({ children }) {
-    const [mode, setMode] = useState('light');
+    const [mode, setMode] = useState(getCookie('THEME') ?? 'dark');
 
     const colorMode = useMemo(
         () => ({
             toggleColorMode: () => {
-                setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+                setMode((prevMode) => {
+                    const newMode = prevMode === 'light' ? 'dark' : 'light';
+                    setCookie('THEME', newMode, 30);
+                    return newMode;
+                })
             },
         }),
         [],
