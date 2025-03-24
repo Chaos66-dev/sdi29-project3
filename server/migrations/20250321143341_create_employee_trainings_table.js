@@ -19,11 +19,6 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-    return knex.schema.alterTable('employee_trainings', (table) => {
-        table.dropForeign('employee_id')
-        table.dropForeign('training_id')
-    })
-        .then(function() {
-            knex.schema.dropTableIfExists('employee_trainings')
-        })
+    return knex.schema
+        .dropTableIfExists('employee_trainings')
 };
