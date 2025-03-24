@@ -74,7 +74,7 @@ server.post('/units', async (req, res) => {
 
 // /units/:id
 // Slight rework of the logic needed if an id was deleted from the database the id might be right but higher than the total count which would never resolve correctly
-server.get('/units/:id', async (req, res) =>{
+server.get('/units/:id(\\d+)', async (req, res) =>{
     const id = parseInt(req.params.id)
 
     if(id > await knex('units').count('id')){
@@ -90,8 +90,10 @@ server.get('/units/:id', async (req, res) =>{
     }
 })
 
+// TODO POST
+
 // the const that reads from the req.body is just assuming that the order of information is correct and fully there we have a check for empty keys but none for incorrect data types in the wrong field.
-server.patch('/units/:id', async (req, res) =>{
+server.patch('/units/:id(\\d+)', async (req, res) =>{
     const id = parseInt(req.params.id)
     try {
         const { name } = req.body
@@ -124,7 +126,7 @@ server.patch('/units/:id', async (req, res) =>{
 })
 
 // Same as the get logic if we submit a number higher than the total and the database has deleted information this will not work
-server.delete('/units/:id', async (req, res) =>{
+server.delete('/units/:id(\\d+)', async (req, res) =>{
     const id = parseInt(req.params.id)
     if(id > await knex('units').count('id')){
         res.status(500).json({error: "unit id not found"})
@@ -346,7 +348,12 @@ server.delete('/employees/:id(\\d+)', async (req, res) => {
 server.get('/employees/trainings/', async (req, res) => {
     console.log('/employees/trainings/ hit')
     try {
-        const query = await knex('employee_trainings').select('*')
+        const query = await knex('employee_trainings').select(
+                                                        'id',
+                                                        'training_id',
+                                                        'employee_id',
+                                                        knex.raw("TO_CHAR(date_completed, 'YYYY-MM-DD') as date_completed")
+                                                    )
 
         res.status(200).json(query);
     } catch (error) {
@@ -454,7 +461,10 @@ server.get('/employees/trainings/:training_id', async (req, res) => {
 
     try {
         const query = await knex('employee_trainings')
-                            .select('*')
+                            .select('id',
+                                    'training_id',
+                                    'employee_id',
+                                    knex.raw("TO_CHAR(date_completed, 'YYYY-MM-DD') as date_completed"))
                             .where('training_id', training_id)
 
         if (query.length !== 0) {
@@ -601,7 +611,11 @@ server.delete('/employees/trainings/:training_id', async (req, res) => {
 server.get('/trainings', async (req, res) => {
     try {
         const query = await knex('training_courses')
-                                .select('*')
+                                .select('id',
+                                        'name',
+                                        'duration',
+                                        'in_person',
+                                        knex.raw("TO_CHAR(due_date, 'YYYY-MM-DD') as due_date"))
         res.status(200).json(query)
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve trainings' });
@@ -704,7 +718,7 @@ server.delete('/trainings', async (req, res) => {
 })
 
 // /trainings/:id
-server.get('/trainings:id', async (req, res) => {
+server.get('/trainings/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (typeof id !== 'number' || isNaN(id)) {
@@ -713,7 +727,11 @@ server.get('/trainings:id', async (req, res) => {
 
     try {
         const query = await knex('training_courses')
-                                .select("*")
+                                .select('id',
+                                        'name',
+                                        'duration',
+                                        'in_person',
+                                        knex.raw("TO_CHAR(due_date, 'YYYY-MM-DD') as due_date"))
                                 .where('id', id)
         if (query.length == 1) {
             res.status(200).json(query)
@@ -725,11 +743,11 @@ server.get('/trainings:id', async (req, res) => {
     }
 })
 
-server.post('/trainings/:id', (req, res) => {
+server.post('/trainings/:id(\\d+)', (req, res) => {
     res.status(400).json({ error: 'Unable to insert new training at this endpoint. Please use /trainings to insert'})
 })
 
-server.patch('/trainings/:id', async (req, res) => {
+server.patch('/trainings/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
     const { name, duration, in_person, due_date} = req.body
 
@@ -755,7 +773,7 @@ server.patch('/trainings/:id', async (req, res) => {
     }
 })
 
-server.delete('/trainings/:id', async (req, res) => {
+server.delete('/trainings/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
 
     if (typeof id !== 'number' || isNaN(id)) {
@@ -779,7 +797,12 @@ server.delete('/trainings/:id', async (req, res) => {
 // /trainings/employees
 server.get('/trainings/employees', async (req, res) => {
     try {
-        const query = await knex('employee_trainings').select('*')
+        const query = await knex('employee_trainings').select(
+                                                        'id',
+                                                        'training_id',
+                                                        'employee_id',
+                                                        knex.raw("TO_CHAR(date_completed, 'YYYY-MM-DD') as date_completed")
+                                                    )
 
         res.status(200).json(query);
     } catch (error) {
@@ -812,7 +835,7 @@ server.post('/trainings/employees', async (req, res) => {
     }
 })
 
-server.patch('trainings/employees', async (req, res) => {
+server.patch('/trainings/employees', async (req, res) => {
     const { employee_id, training_id, date_completed } = req.body
     const id = parseInt(req.body.id)
     if (typeof id !== 'number' || isNaN(id)) {
@@ -843,7 +866,7 @@ server.patch('trainings/employees', async (req, res) => {
         }
 })
 
-server.delete('employee/trainings', async (req, res) => {
+server.delete('/trainings/employees', async (req, res) => {
     const id = parseInt(req.body.id)
     if (typeof id !== 'number' || isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee_training record to delete' });
@@ -865,7 +888,7 @@ server.delete('employee/trainings', async (req, res) => {
     }
 })
 
-// /trainings/employees/:employee_id
+// /trainings/employee/:employee_id
 /*
 For all CRUD operations on this route, the parameter ":employee_id" does not correspond to the primary key of the employee_trainings database records.
 It is instead used to filter the employee_trainings database for records where the "employee_id" is matched
@@ -873,7 +896,7 @@ It is instead used to filter the employee_trainings database for records where t
 The primary key, id, should be included in the body of the request under the field "pk_id".
 This is required to PATCH and DELETE any record at this endpoint
 */
-server.get('/trainings/employees/:employee_id', async (req, res) => {
+server.get('/trainings/employee/:employee_id', async (req, res) => {
     const emp_id = parseInt(req.params.employee_id)
     if (typeof emp_id !== 'number' || isNaN(emp_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. :employee_id should be a number' });
@@ -881,8 +904,11 @@ server.get('/trainings/employees/:employee_id', async (req, res) => {
     }
     try {
         const query = await knex('employee_trainings')
-                                .select("*")
-                                .where('employee_id')
+                                .select('id',
+                                        'training_id',
+                                        'employee_id',
+                                        knex.raw("TO_CHAR(date_completed, 'YYYY-MM-DD') as date_completed"))
+                                .where('employee_id', emp_id)
         if (query.length > 0) {
             res.status(200).json(query)
         } else {
@@ -893,7 +919,7 @@ server.get('/trainings/employees/:employee_id', async (req, res) => {
     }
 })
 
-server.post('/trainings/employees/:employee_id', async (req, res) => {
+server.post('/trainings/employee/:employee_id', async (req, res) => {
     const emp_id = parseInt(req.params.employee_id)
     if (typeof emp_id !== 'number' || isNaN(emp_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the employee to insert an training which they have completed' });
@@ -920,7 +946,7 @@ server.post('/trainings/employees/:employee_id', async (req, res) => {
     }
 })
 
-server.patch('/trainings/employees/:employee_id', async (req, res) => {
+server.patch('/trainings/employee/:employee_id', async (req, res) => {
     const { pk_id, new_employee_id, training_id, date_completed} = req.body
     if (
         typeof pk_id !== 'number' || isNaN(pk_id) ||
@@ -954,7 +980,7 @@ server.patch('/trainings/employees/:employee_id', async (req, res) => {
     }
 })
 
-server.delete('/trainings/employees/:employee_id', async (req, res) => {
+server.delete('/trainings/employee/:employee_id', async (req, res) => {
     const pk_id = parseInt(req.body.pk_id)
     if (typeof pk_id !== 'number' || isNaN(pk_id)) {
         return res.status(400).json({ error: 'Please ensure pk_id is a number and included in the request body'})
@@ -973,78 +999,6 @@ server.delete('/trainings/employees/:employee_id', async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error'})
-    }
-})
-
-// Checked
-server.get('/trainings/:id', async (req, res) => {
-    const id = parseInt(req.params.id)
-    try {
-        const query = await knex('training_courses')
-                                .select('*')
-                                .where('id', id)
-        if (query.length == 1){
-            res.status(200).json(query)
-        } else {
-            res.status(404).json({error: 'Training with this id not found'})
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to retrieve trainings' });
-    }
-})
-
-// Check above for updates
-server.patch('/trainings/:id', async (req, res) => {
-    const id = parseInt(req.params.id)
-
-    try {
-        const { training_id, name, duration, in_person, due_date } = req.body
-        const updates = { training_id, name, duration, in_person, due_date };
-        // removing undefined values to only keep the columns we want to p
-        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
-
-        // ensures there is an id present
-        if (typeof id !== 'number' || isNaN(id)) {
-            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to update' });
-            return
-        }
-
-        // TODO input check the fields
-
-        // updates the training
-        const updatedRows = await knex('training_courses')
-                .where('id', id)
-                .update(updates);
-
-        if (updatedRows === 0) {
-            res.status(404).json({ error: 'Training not found' });
-            return
-        }
-
-        res.status(200).json({ message: 'Training updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update training' });
-    }
-})
-
-// Checked
-server.delete('/training/:id', async (req, res) =>{
-    const id = parseInt(req.params.id)
-    if(id > await knex('training_courses').count('id')){
-        res.status(500).json({error: "Training id not found"})
-    }
-    try{
-        const deletedTraining = await knex('training_courses')
-                                    .select('*')
-                                    .where('id', id)
-                                    .del()
-        if(deletedTraining.length == 1){
-            res.status(200).json({message: 'Training successfully deleted'})
-        } else {
-            res.status(404).json({message: 'Did not find training course with that id'})
-        }
-    } catch(error) {
-        res.status(500).json({error: 'Failed to delete Training by id'})
     }
 })
 
