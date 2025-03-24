@@ -71,6 +71,27 @@ server.post('/units', async (req, res) => {
     }
 });
 
+server.delete('/units', async (req, res) => {
+    const id = parseInt(req.body.id)
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include id of unit to delete from this endpoint' });
+        return
+    }
+
+    try {
+        const del = await knex('units')
+                            .where('id', id)
+                            .del()
+        if (del == 1) {
+            res.status(200).json({message: `Unit with id: ${id} successfully deleted`})
+        } else {
+            res.status(404).json({message: `Could not find unit with id: ${id} to delete`})
+        }
+    } catch (error) {
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+})
+
 
 // /units/:id
 // Slight rework of the logic needed if an id was deleted from the database the id might be right but higher than the total count which would never resolve correctly
@@ -136,7 +157,7 @@ server.delete('/units/:id(\\d+)', async (req, res) =>{
                                     .select('*')
                                     .where('id', id)
                                     .del()
-        if (deletedUnit.length == 1){
+        if (deletedUnit == 1){
             res.status(200).json({message: 'Unit successfully deleted'})
         } else {
             res.status(404).json({message: 'Could not find unit with that id'})
@@ -249,7 +270,7 @@ server.delete('/employees', async (req, res) => {
     try {
         const del_employee = await knex('employees').where('id', id).del();
 
-        if (del_employee.length == 1) {
+        if (del_employee == 1) {
             res.status(200).json({ message: 'Employee deleted successfully' });
         } else {
             res.status(404).json({ error: 'Employee not found' }); // If no rows were deleted
@@ -332,7 +353,7 @@ server.delete('/employees/:id(\\d+)', async (req, res) => {
 
     try {
         const del = await knex('employees').where('id', id).del()
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Employee with id: ${id}, deleted successfully` });
         }
         else {
@@ -594,7 +615,7 @@ server.delete('/employees/trainings/:training_id', async (req, res) => {
                                 .where('id', pk_id)
                                 .del()
 
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Employee training record with id: ${pk_id}, was successfully deleted`})
         } else {
             res.status(404).json({ error: `Employee training record with id: ${pk_id}, not found`})
@@ -724,10 +745,10 @@ server.delete('/trainings', async (req, res) => {
         const del = await knex('training_courses')
                             .where('id', id)
                             .del()
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({message: `Training course with id: ${id} successfully deleted`})
         } else {
-            res.status(400).json({error: `Unable to delete training course with id: ${id}`})
+            res.status(404).json({error: `Unable to delete training course with id: ${id} as it was not found`})
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error'})
@@ -793,7 +814,7 @@ server.patch('/trainings/:id(\\d+)', async (req, res) => {
 server.delete('/trainings/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
 
-    if (typeof id !== 'number' || isNaN(id)) {
+    if (typeof id != 'number' || isNaN(id)) {
         return res.status(400).json({ error: 'Please ensure id is a number'})
     }
 
@@ -801,10 +822,10 @@ server.delete('/trainings/:id(\\d+)', async (req, res) => {
         const del = await knex('training_courses')
                             .where('id', id)
                             .del()
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Training with id: ${id} has been deleted`})
         } else {
-            res.status(400).json({ error: `Training with ${id} not found`})
+            res.status(404).json({ error: `Training with ${id} not found`})
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' })
@@ -1008,7 +1029,7 @@ server.delete('/trainings/employee/:employee_id', async (req, res) => {
                                 .where('id', pk_id)
                                 .del()
 
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Employee training record with pk_id: ${pk_id}, was successfully deleted`})
         } else {
             res.status(404).json({ error: `Employee training record with pk_id: ${pk_id}, not found`})
@@ -1092,7 +1113,7 @@ server.delete('/physical_readiness_standards_men', async (req, res) => {
         const del = await knex('physical_readiness_standards_men')
                             .where('id', id)
                             .del()
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Men physical readiness standard with id: ${id}, successfully deleted`})
         } else {
             res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
@@ -1174,7 +1195,7 @@ server.delete('/physical_readiness_standards_women', async (req, res) => {
         const del = await knex('physical_readiness_standards_women')
                             .where('id', id)
                             .del()
-        if (del.length == 1) {
+        if (del == 1) {
             res.status(200).json({ message: `Women physical readiness standard with id: ${id}, successfully deleted`})
         } else {
             res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
