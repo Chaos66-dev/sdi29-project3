@@ -24,7 +24,6 @@ server.get('/units', async (req, res) => {
     try {
         const query = await knex('units')
                                 .select('*')
-                                .orderBy('id')
         res.status(200).json(query)
     } catch (error) {
         console.error('Error fetching units:', error);
@@ -42,32 +41,19 @@ server.post('/units', async (req, res) => {
     }
 
     try {
-        // Fetch all existing unit IDs
-        const existingIds = await knex('units').pluck('id');
-
-        // Find the maximum ID and determine the next available ID
-        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
-        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
-        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
-
-        // Determine the unit_id
-        const unit_id = unusedIds.length > 0
-            ? unusedIds[0]  // Select the first unused ID from the list
-            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
-
-
-        console.log(`Generated unit_id: ${unit_id}`); // Debug logging
-
-        // Insert the new unit
-        const insert = await knex('units').insert({ id: unit_id, name: name });
+        // // Fetch all existing unit IDs
+        const insert = await knex('units').insert({ name }).returning('*');
 
         // Respond with success
-        return res.status(201).json({
-            message: `Unit created successfully with ${unit_id} id`,
-        });
+        if (insert.length == 1) {
+            res.status(201).json({
+                message: `Unit created successfully`,
+            });
+        } else {
+            res.status(404).json({error: 'Error inserting new unit'})
+        }
     } catch (error) {
-        console.error('Error during unit creation:', error); // Log error for debugging
-        return res.status(500).json({ error: 'Failed to create new unit.' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -198,27 +184,27 @@ server.post('/employees', async (req, res) => {
     }
     try {
         // Fetch all existing unit IDs
-        const existingIds = await knex('employees').pluck('id');
+        // const existingIds = await knex('employees').pluck('id');
 
-        // Find the maximum ID and determine the next available ID
-        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
-        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
-        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
+        // // Find the maximum ID and determine the next available ID
+        // const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+        // const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
+        // const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
 
-        // Determine the unit_id
-        const employee_id = unusedIds.length > 0
-            ? unusedIds[0]  // Select the first unused ID from the list
-            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
+        // // Determine the unit_id
+        // const employee_id = unusedIds.length > 0
+        //     ? unusedIds[0]  // Select the first unused ID from the list
+        //     : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
 
 
-        console.log(`Generated employee_id: ${employee_id}`); // Debug logging
+        // console.log(`Generated employee_id: ${employee_id}`); // Debug logging
 
         // Insert the new unit
-        const insert = await knex('employees').insert({ id: employee_id, name: name, age: age, rank: rank, unit_id: unit_id, sex: sex });
+        const insert = await knex('employees').insert({ name: name, age: age, rank: rank, unit_id: unit_id, sex: sex });
 
         // Respond with success
         return res.status(201).json({
-            message: `Employee created successfully with ${employee_id} id`,
+            message: `Employee created successfully`,
         });
     } catch (error) {
         console.error('Error during unit creation:', error); // Log error for debugging
@@ -396,12 +382,12 @@ server.post('/employees/trainings/', async (req, res) => {
     }
 
     try {
-        const insert = await knex('employee_trainings').insert({ employee_id, training_id, date_completed })
+        const insert = await knex('employee_trainings').insert({ employee_id, training_id, date_completed }).returning("*")
 
         if (insert.length > 0) {
             res.status(201).json({ message: 'Employee training added successfully' });
         } else {
-            res.status(400).json({ error: 'Failed to insert employee training' });
+            res.status(404).json({ error: 'Failed to insert employee training' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
@@ -515,20 +501,20 @@ server.post('/employees/trainings/:training_id', async (req, res) => {
         return
     }
 
-    const { user_id, date_completed } = req.body
+    const { employee_id, date_completed } = req.body
     const data_to_insert = {
         training_id,
-        user_id,
+        employee_id,
         date_completed
     }
 
     try {
-        const insert = await knex('employee_trainings').insert(data_to_insert)
+        const insert = await knex('employee_trainings').insert(data_to_insert).returning("*")
 
-        if (insert) {
-            res.status(201).json({ error: `Employee training record for employee id: ${employee_id} successfully inserted.` })
+        if (insert.length == 1) {
+            res.status(201).json({ error: `Employee training record successfully inserted.` })
         } else {
-            res.status(400).json({ error: `Failed to insert employee training record for employee id: ${employee_id}.` });
+            res.status(400).json({ error: `Failed to insert employee training record` });
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error'})
@@ -649,7 +635,7 @@ server.post('/trainings', async (req, res) => {
 
     if (
         typeof name !== 'string' || name.trim() === ''||
-        typeof duration !== 'string' || duration.trim() === '' ||
+        typeof duration !== 'string' || duration.trim() === ''||
         typeof due_date !== 'string' || due_date.trim() === ''
         ){
             console.log(`name: ${name} \nduration: ${duration} \nin_person: ${in_person} \ndue_date: ${due_date}`)
@@ -838,18 +824,18 @@ server.post('/trainings/employees', async (req, res) => {
     if (
         typeof employee_id !== 'number' ||
         typeof training_id !== 'number' ||
-        typeof date_completed !== 'string' || isNaN(Date.parse(date_completed))
+        typeof date_completed !== 'string'
     ) {
         return res.status(400).json({ error: 'Invalid or missing fields' });
     }
 
     try {
-        const insert = await knex('employee_trainings').insert({ employee_id, training_id, date_completed })
+        const insert = await knex('employee_trainings').insert({ employee_id, training_id, date_completed }).returning("*")
 
         if (insert.length > 0) {
             res.status(201).json({ message: 'Employee training added successfully' });
         } else {
-            res.status(400).json({ error: 'Failed to insert employee training' });
+            res.status(404).json({ error: 'Failed to insert employee training' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
@@ -949,20 +935,21 @@ server.post('/trainings/employee/:employee_id', async (req, res) => {
 
     const { training_id, date_completed } = req.body
     const data_to_insert = {
-        emp_id,
+        employee_id: emp_id,
         training_id,
         date_completed
     }
 
     try {
-        const insert = await knex('employee_trainings').insert(data_to_insert)
+        const insert = await knex('employee_trainings').insert(data_to_insert).returning("*")
 
-        if (insert) {
-            res.status(201).json({ error: `Employee training record for employee id: ${emp_id} successfully inserted.` })
+        if (insert.length == 1) {
+            res.status(201).json({ error: `Employee training record successfully inserted.` })
         } else {
-            res.status(400).json({ error: `Failed to insert employee training record for employee id: ${emp_id}.` });
+            res.status(400).json({ error: `Failed to insert employee training record` });
         }
     } catch (error) {
+        // console.error('Error during training creation:', error); // Log error for debugging
         res.status(500).json({ error: 'Internal Server Error'})
     }
 })
@@ -1038,16 +1025,16 @@ server.get('/physical_readiness_standards_men', async (req, res) => {
 // Check above for the updates
 server.post('/physical_readiness_standards_men', async (req, res) => {
     const {name, value} = req.body
-    if ((typeof name !== 'string' || name.trim() !== '') ||
+    if ((typeof name !== 'string' || name.trim() == '') ||
         (typeof value !== 'number' || isNaN(value))) {
         return res.status(400).json({ error: 'Invalid or missing fields. Please include a name (string) and value (number) for this standard'})
     }
 
     try {
-        const insert_standard = await knex('physical_readiness_standards_men').insert(insert_standard)
+        const insert_standard = await knex('physical_readiness_standards_men').insert({name, value}).returning("*")
 
         if (insert_standard.length == 1) {
-            res.status(200).json({ message: 'Men physical readiness standard successfully '})
+            res.status(201).json({ message: 'Men physical readiness standard successfully '})
         } else {
             res.status(404).json({ error: 'Men phyisical readiness standard could not be inserted'})
         }
@@ -1121,16 +1108,16 @@ server.get('/physical_readiness_standards_women', async (req, res) => {
 // Check above for update
 server.post('/physical_readiness_standards_women', async (req, res) => {
     const {name, value} = req.body
-    if ((typeof name !== 'string' || name.trim() !== '') ||
+    if ((typeof name !== 'string' || name.trim() == '') ||
         (typeof value !== 'number' || isNaN(value))) {
         return res.status(400).json({ error: 'Invalid or missing fields. Please include a name (string) and value (number) for this standard'})
     }
 
     try {
-        const insert_standard = await knex('physical_readiness_standards_women').insert(insert_standard)
+        const insert_standard = await knex('physical_readiness_standards_women').insert({name, value}).returning("*")
 
         if (insert_standard.length == 1) {
-            res.status(200).json({ message: 'Women physical readiness standard successfully '})
+            res.status(201).json({ message: 'Women physical readiness standard successfully '})
         } else {
             res.status(404).json({ error: 'Women phyisical readiness standard could not be inserted'})
         }
