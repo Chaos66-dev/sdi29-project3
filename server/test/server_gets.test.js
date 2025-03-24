@@ -68,9 +68,22 @@ describe('GET /units', () => {
       expect(res.body).to.be.an('array');
       expect(res.body[3]).to.be.an('object');
       expect(res.body[3].id).to.equal(4);
-      // expect(res.body[3].date_completed).to.equal("2024-12-31");
+      expect(res.body[3].date_completed).to.equal("2024-12-31");
       expect(res.body.length).to.equal(7)
     })
+
+    it('/employees/trainings/:training_id should return an array of trainings records for all employees who completed this training with a 200 status', async () => {
+      const res = await request(server).get('/employees/trainings/2')
+      expect(res.status).to.equal(200)
+      expect(res.body).to.be.an('array');
+      expect(res.body[0]).to.be.an('object');
+      expect(res.body[0].id).to.equal(3);
+      expect(res.body[0].training_id).to.equal(2);
+      expect(res.body[0].employee_id).to.equal(3);
+      expect(res.body.length).to.equal(2)
+    })
+
+
   })
 
   describe('GET /trainings', () => {
@@ -89,6 +102,28 @@ describe('GET /units', () => {
         expect(res.body[0]).to.be.an('object');
         expect(res.body[0].id).to.equal(1);
         expect(res.body[0].name).to.equal("Supra Coders");
+        expect(res.body.length).to.equal(1)
+    });
+
+    it('/trainings/employees should return an array of all training records with a 200 status', async () => {
+        const res = await request(server).get('/trainings/employees');
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body[4]).to.be.an('object');
+        expect(res.body[4].id).to.equal(5);
+        expect(res.body[4].date_completed).to.equal("2025-02-18");
+        expect(res.body.length).to.equal(7)
+    });
+
+    it('/trainings/employees/:employee_id should return an array of all training records that a specific employee has completed with a 200 status', async () => {
+        const res = await request(server).get('/trainings/employee/3');
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body[0]).to.be.an('object');
+        expect(res.body[0].id).to.equal(3);
+        expect(res.body[0].employee_id).to.equal(3);
+        expect(res.body[0].training_id).to.equal(2);
+        expect(res.body[0].date_completed).to.equal("2023-09-27");
         expect(res.body.length).to.equal(1)
     });
   })
