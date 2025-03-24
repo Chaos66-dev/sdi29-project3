@@ -25,7 +25,7 @@ server.get('/units', async (req, res) => {
         const query = await knex('units')
                                 .select('*')
                                 .orderBy('id')
-        res.status(200).send(query)
+        res.status(200).json(query)
     } catch (error) {
         console.error('Error fetching units:', error);
         res.status(500).json({ error: 'Failed to retrieve units' });
@@ -84,7 +84,7 @@ server.get('/units/:id', async (req, res) =>{
         const selectedUnit = await knex('units')
                                     .select('*')
                                     .where('id', id)
-        res.status(200).send(selectedUnit)
+        res.status(200).json(selectedUnit)
     } catch(error){
         res.status(500).json({error: 'Failed to retrieve unit by id'})
     }
@@ -94,14 +94,14 @@ server.get('/units/:id', async (req, res) =>{
 server.patch('/units/:id', async (req, res) =>{
     const id = parseInt(req.params.id)
     try {
-        const { unit_id, name, age, gender, rank } = req.body
-        const updates = { unit_id, name, age, gender, rank };
+        const { name } = req.body
+        const updates = { name };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
         // ensures there is an id present
         if (typeof id !== 'number' || isNaN(id)) {
-            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to update' });
+            res.status(400).json({ error: 'Invalid or missing fields. Must include number id of unit to update' });
             return
         }
 
@@ -134,7 +134,11 @@ server.delete('/units/:id', async (req, res) =>{
                                     .select('*')
                                     .where('id', id)
                                     .del()
-        res.status(200).json({message: 'Unit successfully deleted'})
+        if (deletedUnit.length == 1){
+            res.status(200).json({message: 'Unit successfully deleted'})
+        } else {
+            res.status(404).json({message: 'Could not find unit with that id'})
+        }
     } catch(error) {
         res.status(500).json({error: 'Failed to delete unit by id'})
     }
@@ -147,7 +151,7 @@ server.get('/employees', async (req, res) => {
     try {
         const query = await knex('employees')
                                 .select('*')
-        res.status(200).send(query)
+        res.status(200).json(query)
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve employees' });
     }
@@ -243,7 +247,7 @@ server.delete('/employees', async (req, res) => {
     try {
         const del_employee = await knex('employees').where('id', id).del();
 
-        if (del_employee) {
+        if (del_employee.length == 1) {
             res.status(200).json({ message: 'Employee deleted successfully' });
         } else {
             res.status(404).json({ error: 'Employee not found' }); // If no rows were deleted
@@ -255,7 +259,8 @@ server.delete('/employees', async (req, res) => {
 
 // /employees/:id
 // Cheked
-server.get('/employees/:id', async (req, res) => {
+server.get('/employees/:id(\\d+)', async (req, res) => {
+    console.log('employees/:id hit')
     const id  = parseInt(req.params.id)
     if (Number.isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. ID should be a number' });
@@ -266,8 +271,8 @@ server.get('/employees/:id', async (req, res) => {
         const emp = await knex('employees')
                             .select('*')
                             .where('id', id)
-        if (emp) {
-            res.status(200).send(emp)
+        if (emp.length !=  0) {
+            res.status(200).json(emp)
         }
         else {
             res.status(404).json({error: `Employee with id: ${id} not found`})
@@ -278,12 +283,12 @@ server.get('/employees/:id', async (req, res) => {
 })
 
 // Empty
-server.post('/employees', (req, res) => {
+server.post('/employees/:id(\\d+)', (req, res) => {
     res.status(400).json({ error: 'Unable to insert new employee at this endpoint. Please use /employees to insert'})
 })
 
 // Same as other patches
-server.patch('/employees/:id', async (req, res) => {
+server.patch('/employees/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
     try {
         const { unit_id, name, age, gender, rank, } = req.body
@@ -316,7 +321,7 @@ server.patch('/employees/:id', async (req, res) => {
 })
 
 // Checked
-server.delete('/employees/:id', async (req, res) => {
+server.delete('/employees/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
     if (typeof id !== 'number' || isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee to delete' });
@@ -325,7 +330,7 @@ server.delete('/employees/:id', async (req, res) => {
 
     try {
         const del = await knex('employees').where('id', id).del()
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Employee with id: ${id}, deleted successfully` });
         }
         else {
@@ -338,22 +343,19 @@ server.delete('/employees/:id', async (req, res) => {
 
 // /employees/trainings
 // Checked
-server.get('/employees/trainings', async (req, res) => {
+server.get('/employees/trainings/', async (req, res) => {
+    console.log('/employees/trainings/ hit')
     try {
         const query = await knex('employee_trainings').select('*')
 
-        if (query.length > 0) {
-            res.status(200).json(query);
-        } else {
-            res.status(404).json({ error: 'No training records found' });
-        }
+        res.status(200).json(query);
     } catch (error) {
         res.status(500).json({ error: 'Failed to query employee_trainings database'})
     }
 })
 
 // Check above for standard updates
-server.post('employee/trainings', async (req, res) => {
+server.post('/employees/trainings/', async (req, res) => {
     const { employee_id, training_id, date_completed } = req.body
 
     // type checking input
@@ -379,7 +381,7 @@ server.post('employee/trainings', async (req, res) => {
 })
 
 //  Check above for updates
-server.patch('employee/trainings', async (req, res) => {
+server.patch('/employees/trainings/', async (req, res) => {
     const { employee_id, training_id, date_completed } = req.body
     const id = parseInt(req.body.id)
     if (typeof id !== 'number' || isNaN(id)) {
@@ -411,7 +413,7 @@ server.patch('employee/trainings', async (req, res) => {
 })
 
 // Checked
-server.delete('employee/trainings', async (req, res) => {
+server.delete('/employees/trainings/', async (req, res) => {
     const id = parseInt(req.body.id)
     if (typeof id !== 'number' || isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of employee_training record to delete' });
@@ -422,7 +424,7 @@ server.delete('employee/trainings', async (req, res) => {
         // updates the employee_training record
         const del = await knex('employee_trainings').where('id', id).del()
 
-        if (del === 0) {
+        if (del.length === 0) {
             res.status(404).json({ error: 'Employee training record not found' });
             return
         }
@@ -444,6 +446,7 @@ This is required to PATCH and DELETE any record at this endpoint
 // Checked
 server.get('/employees/trainings/:training_id', async (req, res) => {
     const training_id = parseInt(req.params.training_id)
+    console.log('/employees/trainings/:id hit')
     if (typeof training_id !== 'number' || isNaN(training_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to get a list of employess who have completed it' });
         return
@@ -454,7 +457,7 @@ server.get('/employees/trainings/:training_id', async (req, res) => {
                             .select('*')
                             .where('training_id', training_id)
 
-        if (query) {
+        if (query.length !== 0) {
             res.status(200).json(query)
         }
         else {
@@ -542,7 +545,7 @@ server.patch('/employees/trainings/:training_id', async (req, res) => {
                                     .where('id', pk_id)
                                     .update(updates);
 
-        if (!updatedRows) {
+        if (updatedRows.length == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
@@ -581,7 +584,7 @@ server.delete('/employees/trainings/:training_id', async (req, res) => {
                                 .where('id', pk_id)
                                 .del()
 
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Employee training record with id: ${pk_id}, was successfully deleted`})
         } else {
             res.status(404).json({ error: `Employee training record with id: ${pk_id}, not found`})
@@ -599,7 +602,7 @@ server.get('/trainings', async (req, res) => {
     try {
         const query = await knex('training_courses')
                                 .select('*')
-        res.status(200).send(query)
+        res.status(200).json(query)
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve trainings' });
     }
@@ -628,15 +631,66 @@ server.post('/trainings', async (req, res) => {
                                 duration: duration,
                                 in_person: in_person,
                                 due_date: due_date})
+        if (insert.length == 1){
+            res.status(200).json(insert)
+        } else {
+            res.status(404).json({error: 'Could not add training'})
+        }
 
-        res.status(200).send(insert)
     } catch(error){
         res.status(500).json({error: 'Failed to created new training'})
     }
 
 })
 
-// TODO PATCH AND DELETE
+server.patch('/trainings', async (req, res) => {
+    const { id, name, duration, in_person, due_date} = re.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of training course to patch' });
+        return
+    }
+
+    const updates = {};
+    if (name) updates.name = name;
+    if (duration) updates.duration = duration;
+    if (duration) updates.duration = duration;
+    if (due_date) updates.due_date = due_date;
+
+    try {
+        const patch = await knex('training_courses')
+                                .where('id', id)
+                                .update(updates)
+        if (patch.length == 1) {
+            res.status(200).json({message: `Training course with id: ${id} successfully updated`})
+        } else {
+            res.status(400).json({error: `Unable to update training course with id: ${id}`})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error'})
+    }
+})
+
+
+server.delete('/trainings', async (req, res) => {
+    const { id } = req.body
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include number id of training course to patch' });
+        return
+    }
+
+    try {
+        const del = await knex('training_courses')
+                            .where('id', id)
+                            .del()
+        if (del.length == 1) {
+            res.status(200).json({message: `Training course with id: ${id} successfully deleted`})
+        } else {
+            res.status(400).json({error: `Unable to delete training course with id: ${id}`})
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error'})
+    }
+})
 
 // /trainings/:id
 server.get('/trainings:id', async (req, res) => {
@@ -649,7 +703,8 @@ server.get('/trainings:id', async (req, res) => {
     try {
         const query = await knex('training_courses')
                                 .select("*")
-        if (query) {
+                                .where('id', id)
+        if (query.length == 1) {
             res.status(200).json(query)
         } else {
             res.status(404).json({ error: `No training courses found with id: ${id}`})
@@ -700,7 +755,7 @@ server.delete('/trainings/:id', async (req, res) => {
         const del = await knex('training_courses')
                             .where('id', id)
                             .del()
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Training with id: ${id} has been deleted`})
         } else {
             res.status(400).json({ error: `Training with ${id} not found`})
@@ -715,11 +770,7 @@ server.get('/trainings/employees', async (req, res) => {
     try {
         const query = await knex('employee_trainings').select('*')
 
-        if (query.length > 0) {
-            res.status(200).json(query);
-        } else {
-            res.status(404).json({ error: 'No training records found' });
-        }
+        res.status(200).json(query);
     } catch (error) {
         res.status(500).json({ error: 'Failed to query employee_trainings database'})
     }
@@ -792,7 +843,7 @@ server.delete('employee/trainings', async (req, res) => {
         // updates the employee_training record
         const del = await knex('employee_trainings').where('id', id).del()
 
-        if (del === 0) {
+        if (del.length === 0) {
             res.status(404).json({ error: 'Employee training record not found' });
             return
         }
@@ -821,7 +872,7 @@ server.get('/trainings/employees/:employee_id', async (req, res) => {
         const query = await knex('employee_trainings')
                                 .select("*")
                                 .where('employee_id')
-        if (query) {
+        if (query.length > 0) {
             res.status(200).json(query)
         } else {
             res.status(404).json({ error: `No training records found for employee with id ${emp_id}`})
@@ -881,7 +932,7 @@ server.patch('/trainings/employees/:employee_id', async (req, res) => {
                                     .where('id', pk_id)
                                     .update(updates);
 
-        if (updatedRows) {
+        if (updatedRows.length == 1) {
             res.status(200).json({ message: `Employee training record with id ${pk_id} updated successfully` });
         } else {
             return res.status(404).json({ error: 'No matching record found to update' });
@@ -903,7 +954,7 @@ server.delete('/trainings/employees/:employee_id', async (req, res) => {
                                 .where('id', pk_id)
                                 .del()
 
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Employee training record with pk_id: ${pk_id}, was successfully deleted`})
         } else {
             res.status(404).json({ error: `Employee training record with pk_id: ${pk_id}, not found`})
@@ -921,7 +972,11 @@ server.get('/trainings/:id', async (req, res) => {
         const query = await knex('training_courses')
                                 .select('*')
                                 .where('id', id)
-        res.status(200).send(query)
+        if (query.length == 1){
+            res.status(200).json(query)
+        } else {
+            res.status(404).json({error: 'Training with this id not found'})
+        }
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve trainings' });
     }
@@ -972,7 +1027,11 @@ server.delete('/training/:id', async (req, res) =>{
                                     .select('*')
                                     .where('id', id)
                                     .del()
-        res.status(200).json({message: 'Training successfully deleted'})
+        if(deletedTraining.length == 1){
+            res.status(200).json({message: 'Training successfully deleted'})
+        } else {
+            res.status(404).json({message: 'Did not find training course with that id'})
+        }
     } catch(error) {
         res.status(500).json({error: 'Failed to delete Training by id'})
     }
@@ -984,11 +1043,7 @@ server.get('/physical_readiness_standards_men', async (req, res) => {
     try {
         const query = await knex('physical_readiness_standards_men').select('*')
 
-        if (query) {
-            res.status(200).json(query)
-        } else {
-            res.status(404).json({ error: 'No records found in the physical_readiness_standards_men table'})
-        }
+        res.status(200).json(query)
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error, unable to query physical_readiness_standards_men table'})
     }
@@ -1005,7 +1060,7 @@ server.post('/physical_readiness_standards_men', async (req, res) => {
     try {
         const insert_standard = await knex('physical_readiness_standards_men').insert(insert_standard)
 
-        if (insert_standard) {
+        if (insert_standard.length == 1) {
             res.status(200).json({ message: 'Men physical readiness standard successfully '})
         } else {
             res.status(404).json({ error: 'Men phyisical readiness standard could not be inserted'})
@@ -1034,7 +1089,7 @@ server.patch('/physical_readiness_standards_men', async (req, res) => {
                                     .update(updates)
 
 
-        if (!updatedRows) {
+        if (updatedRows.length == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
@@ -1055,7 +1110,7 @@ server.delete('/physical_readiness_standards_men', async (req, res) => {
         const del = await knex('physical_readiness_standards_men')
                             .where('id', id)
                             .del()
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Men physical readiness standard with id: ${id}, successfully deleted`})
         } else {
             res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
@@ -1071,11 +1126,7 @@ server.get('/physical_readiness_standards_women', async (req, res) => {
     try {
         const query = await knex('physical_readiness_standards_women').select('*')
 
-        if (query) {
-            res.status(200).json(query)
-        } else {
-            res.status(404).json({ error: 'No records found in the physical_readiness_standards_women table'})
-        }
+        res.status(200).json(query)
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error, unable to query physical_readiness_standards_women table'})
     }
@@ -1092,7 +1143,7 @@ server.post('/physical_readiness_standards_women', async (req, res) => {
     try {
         const insert_standard = await knex('physical_readiness_standards_women').insert(insert_standard)
 
-        if (insert_standard) {
+        if (insert_standard.length == 1) {
             res.status(200).json({ message: 'Women physical readiness standard successfully '})
         } else {
             res.status(404).json({ error: 'Women phyisical readiness standard could not be inserted'})
@@ -1121,7 +1172,7 @@ server.patch('/physical_readiness_standards_women', async (req, res) => {
                                     .update(updates)
 
 
-        if (!updatedRows) {
+        if (updatedRows.length == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
@@ -1141,7 +1192,7 @@ server.delete('/physical_readiness_standards_women', async (req, res) => {
         const del = await knex('physical_readiness_standards_women')
                             .where('id', id)
                             .del()
-        if (del) {
+        if (del.length == 1) {
             res.status(200).json({ message: `Women physical readiness standard with id: ${id}, successfully deleted`})
         } else {
             res.status(404).json({ error: `Could not find record with id: ${id} to delete`})
