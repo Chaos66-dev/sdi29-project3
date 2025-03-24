@@ -12,8 +12,12 @@ function Login() {
 
     useEffect(() => {
         if(userID != null) {
-            fetch(`http://localhost:4000/employees`)
-            .then((res) => res.json())
+            fetch(`http://localhost:4000/employees/${userID}`)
+            .then((res) => {
+                console.log(res.status)
+                console.log(userID)
+                return res.json();
+            })
             .then((data) => { setPersonnelData(data);
 
                 // if userID exists in the data
@@ -69,7 +73,7 @@ function Login() {
                     setUserID('');
                 }} />
             </form>
-            {showUserNotFoundMessage && <p className="error">User ID not found</p>}
+            {showUserNotFoundMessage && <p className="user-not-found">User ID not found</p>}
         </>
     )
 }

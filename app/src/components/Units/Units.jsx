@@ -1,80 +1,137 @@
-import { useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext.jsx";
 import "./Units.css";
 
+import sscEmblem from "../../assets/ssc_emblem.png";
+import spocEmblem from "../../assets/spoc_emblem.png";
+import delta4Emblem from "../../assets/delta4_emblem.png";
+
+const unitEmblems = {
+  "Space Systems Command (SSC)": sscEmblem,
+  "Space Operations Command (SpOC)": spocEmblem,
+  "Delta 4 (Space Force) - Missile Warning": delta4Emblem
+};
+
 function Units() {
-  const { userID, unitID } = useContext(UserContext); // User's assigned Unit ID
-  const [unitId, setUnitId] = useState(unitID || "");
+  const { userID } = useContext(UserContext);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [unit, setUnit] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchUserUnit = () => {
-    if (!unitId.trim()) {
-      setError("Please enter a valid Unit ID.");
-      return;
+  const [allUnits, setAllUnits] = useState([]);
+  const [showAllUnits, setShowAllUnits] = useState(false);
+
+  const fetchData = async (url, errorMessage) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(errorMessage);
+      return await res.json();
+    } catch (err) {
+      console.error(`${errorMessage}:`, err.message);
+      setError(errorMessage);
+      return null;
     }
+  };
 
-    // Ensure user can ONLY fetch their assigned unit
-    if (unitID && unitId !== unitID) {
-      setError("You are not authorized to view this Unit.");
-      return;
+  useEffect(() => {
+    if (!id && userID) {
+      const fetchEmployeeAndRedirect = async () => {
+        const employeeData = await fetchData(`http://localhost:4000/employees/${userID}`, "Employee not found");
+        if (!employeeData) return;
+
+        const employee = Array.isArray(employeeData) ? employeeData[0] : employeeData;
+        if (!employee) {
+          setError("User not found. Please sign in with a valid User ID.");
+          return;
+        }
+        navigate(`/Units/${employee.unit_id}`);
+      };
+
+      fetchEmployeeAndRedirect();
     }
+  }, [userID, id, navigate]);
 
-    setLoading(true);
-    setError("");
-
-    fetch(`http://localhost:4000/units/${unitId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Unit not found.");
-        return res.json();
-      })
-      .then((data) => {
-        if (data && data.id) {
-          setUnit(data);
-        } else {
-          setUnit(null);
-          setError("Unit not found.");
+  useEffect(() => {
+    if (id) {
+      const fetchUnit = async () => {
+        const unitData = await fetchData(`http://localhost:4000/units/${id}`, "Unit not found");
+        if (unitData) {
+          const unitObject = Array.isArray(unitData) ? unitData[0] : unitData;
+          setUnit(unitObject);
         }
         setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-        setUnit(null);
+      };
+
+      fetchUnit();
+    }
+  }, [id]);
+
+  const fetchAllUnitsWithEmployees = async () => {
+    const unitsData = await fetchData("http://localhost:4000/units", "Failed to fetch units");
+    const employeesData = await fetchData("http://localhost:4000/employees", "Failed to fetch employees");
+
+    if (unitsData && employeesData) {
+      const unitsWithEmployees = unitsData.map(unit => {
+        const assignedEmployees = employeesData.filter(emp => emp.unit_id === unit.id);
+        return { ...unit, employees: assignedEmployees };
       });
+
+      setAllUnits(unitsWithEmployees);
+      setShowAllUnits(true);
+    }
   };
 
   return (
     <div className="unit-container">
       <h1>Units Page</h1>
-      <h2 className="unit-subtitle">Enter Your Unit ID</h2>
 
-      <div className="unit-input-container">
-        <input
-          type="text"
-          placeholder="Enter Unit ID"
-          value={unitId}
-          onChange={(e) => setUnitId(e.target.value)}
-          className="unit-input"
-        />
-        <button onClick={fetchUserUnit} className="fetch-button">
-          Fetch Unit
-        </button>
-      </div>
+      {!id && <p>Redirecting to your assigned unit...</p>}
 
-      {error && <p className="error-message">{error}</p>}
-      {loading && <p>Loading data...</p>}
+      {loading && id && <p>Loading unit details...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {unit && (
+      {!loading && unit && (
         <div>
           <h3>Unit {unit.id} Details</h3>
-          <p>Name: {unit.name}</p>
+          <p><strong>Name:</strong> {unit.name}</p>
+
+          {userID == 5 && (
+        <button onClick={fetchAllUnitsWithEmployees} className="unit-button">
+          View All Units and Assigned Employees
+        </button>
+      )}
+          {unitEmblems[unit.name] && (
+            <img
+              src={unitEmblems[unit.name]}
+              alt={`${unit.name} Emblem`}
+              className="unit-emblem"
+            />
+          )}
         </div>
       )}
 
-      {!loading && unit === null && (
-        <p>No details found for the entered Unit ID.</p>
+      {showAllUnits && allUnits.length > 0 && (
+        <div className="unit-list">
+          <h3>All Units and Assigned Employees</h3>
+          {allUnits.map(unit => (
+            <div key={unit.id} className="unit-card">
+              <h4>{unit.name}</h4>
+              {unit.employees.length > 0 ? (
+                <ul>
+                  {unit.employees.map(emp => (
+                    <li key={emp.id}>{emp.name} ({emp.rank})</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No employees assigned.</p>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

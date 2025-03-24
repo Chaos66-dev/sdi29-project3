@@ -28,18 +28,36 @@ ul {
 }
 
 details.overdue li {
+  text-align: center;
+}
+
+details.overdue strong {
   color: red;
+  border-bottom: 3px solid white;
 }
 
 details.almost-due li {
-  color: orange;
+  text-align: center;
 }
 
-.available-data {
-  font-weight: bold;
+details.almost-due strong {
+  color: orange;
+  border-bottom: 3px solid white;
+}
+
+.available-data li {
+  text-align: center;
 }
 
 .available-data strong {
   color: green;
+  border-bottom: 3px solid white;
+}
+
+.completed-data li {
+  text-align: center;
+}
+
+.completed-data strong {
   border-bottom: 3px solid white;
 }

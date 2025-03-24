@@ -13,7 +13,7 @@ function PersonnelDropdown( {onSelect}) {
             .catch(error => {
                 console.error('Error fetching employees for dropdown:', error);
             });
-    }, []);
+    }, [employees]);
 
     return (
         <select onChange={(e) => onSelect(JSON.parse(e.target.value))}>
