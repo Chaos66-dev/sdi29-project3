@@ -649,35 +649,35 @@ server.post('/trainings', async (req, res) => {
 
     if (
         typeof name !== 'string' || name.trim() === ''||
-        typeof duration !== 'number' || duration === 0||
+        typeof duration !== 'string' || duration.trim() === '' ||
         typeof due_date !== 'string' || due_date.trim() === ''
         ){
             console.log(`name: ${name} \nduration: ${duration} \nin_person: ${in_person} \ndue_date: ${due_date}`)
         return res.status(400).json({ message : 'Incorrect input data'})
     }
     try {
-        const existingIds = await knex('training_courses').pluck('id');
+        // const existingIds = await knex('training_courses').pluck('id');
 
-        // Find the maximum ID and determine the next available ID
-        const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
-        const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
-        const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
+        // // Find the maximum ID and determine the next available ID
+        // const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+        // const allPossibleIds = Array.from({ length: maxId }, (_, i) => i + 1);
+        // const unusedIds = allPossibleIds.filter(id => !existingIds.includes(id));
 
-        // Determine the unit_id
-        const training_id = unusedIds.length > 0
-            ? unusedIds[0]  // Select the first unused ID from the list
-            : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
+        // // Determine the unit_id
+        // const training_id = unusedIds.length > 0
+        //     ? unusedIds[0]  // Select the first unused ID from the list
+        //     : allPossibleIds.find(id => !existingIds.includes(id)); // Find an unused ID dynamically
 
 
-        console.log(`Generated trainging_id: ${training_id}`); // Debug logging
+        // console.log(`Generated trainging_id: ${training_id}`); // Debug logging
 
         // Insert the new unit
-        const insert = await knex('training_courses').insert({ id: training_id, name: name, duration: duration, in_person: in_person, due_date: due_date });
+        const insert = await knex('training_courses').insert({ name, duration, in_person, due_date }).returning("*");
 
         // Respond with success
         if (insert.length == 1){
             res.status(201).json({
-                message: `Training created successfully with ${training_id} id`,
+                message: `Training created successfully`,
             })
         } else {
             res.status(404).json({error: 'Training could not be created'})

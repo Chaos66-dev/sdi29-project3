@@ -68,6 +68,7 @@ describe('GET /units', () => {
       expect(res.body).to.be.an('array');
       expect(res.body[3]).to.be.an('object');
       expect(res.body[3].id).to.equal(4);
+<<<<<<< HEAD
       expect(res.body[3].date_completed).to.equal("2024-12-31");
       expect(res.body.length).to.equal(7)
     })
@@ -84,6 +85,11 @@ describe('GET /units', () => {
     })
 
 
+=======
+      // expect(res.body[3].date_completed).to.equal("2024-12-31");
+      expect(res.body.length).to.equal(7)
+    })
+>>>>>>> 6b3081d (fixed server routes error codes and added additional unit testing for get routes)
   })
 
   describe('GET /trainings', () => {
@@ -104,6 +110,7 @@ describe('GET /units', () => {
         expect(res.body[0].name).to.equal("Supra Coders");
         expect(res.body.length).to.equal(1)
     });
+<<<<<<< HEAD
 
     it('/trainings/employees should return an array of all training records with a 200 status', async () => {
         const res = await request(server).get('/trainings/employees');
@@ -126,6 +133,8 @@ describe('GET /units', () => {
         expect(res.body[0].date_completed).to.equal("2023-09-27");
         expect(res.body.length).to.equal(1)
     });
+=======
+>>>>>>> 6b3081d (fixed server routes error codes and added additional unit testing for get routes)
   })
 
   describe('GET /physical_readiness_standards_men', () => {
