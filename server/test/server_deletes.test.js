@@ -2,14 +2,20 @@ const request = require('supertest');
 const server = require('../src/server'); // import your Express app
 const chai = require('chai');
 const expect = chai.expect;
-const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
+let knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
 
-afterEach(async () => {
-    // Rollback migrations and reseed after each test if needed
+// TODO test incorrect delete's
+
+beforeEach(async () => {
+    knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
     await knex.migrate.rollback();
     await knex.migrate.latest();
     await knex.seed.run();
-  });
+});
+
+afterEach(async () => {
+    await knex.destroy();
+});
 
 // Unit testing all server api endpoints with the DELETE method
 describe('DELETE /units', () => {
