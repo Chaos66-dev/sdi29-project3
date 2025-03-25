@@ -64,4 +64,38 @@ If logged in with a valid ID will present you all the training information assoc
 
 ### Create
 
-Takes you to a list of input fields that will allow a user to add in new informatiom into the database
+Takes you to a list of input fields that will allow a user to add in new informatiom into the database.
+
+There are tabs under the navigation buttons that will set you to the type of information you are trying to create:
+
+- Unit
+- Peronnel
+- Trainings
+
+## Testing
+Logging into user 5 will set your account to our admin user that will be able to see all information availiable to the site
+
+Running the tests that are included works as follows:
+
+1. Compose the docker image with
+```
+docker-compose up --build
+```
+2. Testing the server 
+    - In a seperate console with the docker compose running
+```
+docker exec -it project-3-server
+```
+The above command will log you into the docker server container that is running from the docker-compose
+```
+npm test
+```
+3. Testing the ui 
+    - In a seperate console with the docker compose running
+```
+docker exec -it project-3-ui
+```
+The above command will log you into the docker ui container that is running from the docker-compose
+```
+npm test
+```
