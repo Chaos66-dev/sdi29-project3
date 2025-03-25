@@ -3,14 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext.jsx";
 import "./Units.css";
 
-import sscEmblem from "../../assets/ssc_emblem.png";
-import spocEmblem from "../../assets/spoc_emblem.png";
-import delta4Emblem from "../../assets/delta4_emblem.png";
-
 const unitEmblems = {
-  "Space Systems Command (SSC)": sscEmblem,
-  "Space Operations Command (SpOC)": spocEmblem,
-  "Delta 4 (Space Force) - Missile Warning": delta4Emblem
+  "Space Systems Command (SSC)": "/ssc_emblem.png",
+  "Space Operations Command (SpOC)": "/spoc_test.png",
+  "Delta 4 (Space Force) - Missile Warning": "/delta4_emblem.png",
 };
 
 function Units() {

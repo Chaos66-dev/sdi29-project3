@@ -355,7 +355,7 @@ function Create() {
                                 e.preventDefault();
                                 const name = document.getElementById('add-training-name-input').value;
                                 const durationStr = document.getElementById('add-training-duration-input').value;
-                                const inPerson = document.getElementById('add-training-TDY-input').checked;
+                                const inPerson = document.getElementById('add-training-TDY-input').value;
                                 const dueDate = new Date(document.getElementById('add-training-due-input').value).toISOString();
 
                                 let duration;
@@ -372,7 +372,11 @@ function Create() {
                                 <h3>Add Training</h3>
                                 <input type="text" placeholder="Name" id='add-training-name-input' required />
                                 <input type="text" placeholder="Duration (ex: 00:00:00)" id='add-training-duration-input' pattern="\d{2,3}:\d{2}:\d{2}" title="Format: DD:HH:MM or DDD:HH:MM" required />
-                                <input type="checkbox" id='add-training-TDY-input' /> <label htmlFor="add-training-TDY-input">In Person (TDY)</label>
+                                <select id='add-training-TDY-input'>
+                                    <option value="" disabled selected>TDY</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
                                 <input type="date" id='add-training-due-input' required />
                                 <input type="submit" value="Add Training" />
                             </form>
@@ -406,13 +410,17 @@ function Create() {
                                         const minutes = totalMinutes % 60;
                                         const durationStr = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                                         document.getElementById('edit-training-duration-input').value = durationStr;
-                                        document.getElementById('edit-training-TDY-input').checked = value.in_person;
+                                        document.getElementById('edit-training-TDY-input').value = value.in_person;
                                         document.getElementById('edit-training-due-input').value = new Date(value.due_date).toISOString().split('T')[0];
                                     }
                                 }} />
                                 <input type="text" placeholder="Name" id='edit-training-name-input' required />
                                 <input type="text" placeholder="Duration (ex: 00:00:00)" id='edit-training-duration-input' pattern="\d{2,3}:\d{2}:\d{2}" title="Format: DD:HH:MM or DDD:HH:MM" required />
-                                <input type="checkbox" id='edit-training-TDY-input' /> <label htmlFor="edit-training-TDY-input">In Person (TDY)</label>
+                                <select id='edit-training-TDY-input'>
+                                    <option value="" disabled selected>TDY</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
                                 <input type="date" id='edit-training-due-input' required />
                                 <input type="submit" value="Edit Training" />
                                 <h3>Remove Training</h3>
@@ -422,13 +430,35 @@ function Create() {
                                 <input type='button' value='Remove Training' onClick={() => {
                                     deleteTraining();
                                 }} />
-                                <h3>Edit Personell Training</h3>
-                                <TrainingDropdown onSelect={(value) => {
-                                    setSelectedTraining(value);
-                                }} />
-                                <input type='button' value='Remove Training' onClick={() => {
-                                    deleteTraining();
-                                }} />
+                                <h3>Add Personnel Training</h3>
+                                    <PersonnelDropdown onSelect={(value) => {
+                                        setSelectedEmployee(value);
+                                    }} />
+                                    <TrainingDropdown onSelect={(value) => {
+                                        setSelectedTraining(value);
+                                    }} />
+                                <input type="submit" value="Add Personnel Training" />
+                                <h3>Edit Personnel Training</h3>
+                                    <PersonnelDropdown onSelect={(value) => {
+                                        setSelectedEmployee(value);
+                                    }} />
+                                    <TrainingDropdown onSelect={(value) => {
+                                        setSelectedTraining(value);
+                                    }} />
+                                    <input
+                                        type="date"
+                                        id='add-personnel-training-date-input'
+                                        required
+                                    />
+                                <input type="submit" value="Edit Personnel Training" />
+                                <h3>Remove Personnel Training</h3>
+                                    <PersonnelDropdown onSelect={(value) => {
+                                        setSelectedEmployee(value);
+                                    }} />
+                                    <TrainingDropdown onSelect={(value) => {
+                                        setSelectedTraining(value);
+                                    }} />
+                                <input type="submit" value="Remove Personnel Training" />
                             </form>
                         </div>
                     </TabPanel>
