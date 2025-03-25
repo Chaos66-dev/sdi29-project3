@@ -24,11 +24,20 @@
         POSTGRES_HOST=db
         POSTGRES_PORT=5432
     ```
-4. Build and start your containers
+4. Ensure Docker is running
+    - This can be done by either opening Docker Desktop, or by running the following command in a terminal if you're on Mac or Windows:
+    ```bash
+    open -a Docker
+    ```
+    - If your're on Linux, you can run the following command:
+    ```bash
+    sudo systemctl start docker
+    ```
+5. Build and start your containers
     ```bash
     docker-compose up --build
     ```
-5. In a browser navigate to
+6. In a browser navigate to
     ```
     localhost:1000
     ```
@@ -101,7 +110,7 @@ docker-compose up --build
 2. Testing the server
     - In a seperate console with the containers running
 ```bash
-docker exec -it project-3-server
+docker exec -it project-3-server /bin/bash
 ```
 The above command will give you an interactive terminal connected to the container running our backend server that was created by running the `docker-compose up --build` command. Once connected to this container, run the following command to execute the backend tests.
 ```bash
@@ -111,7 +120,7 @@ The backend testing was implemented making use of Supertest, Mocha, and Chai to 
 3. Testing the ui
     - In a seperate console with the containers running
 ```
-docker exec -it project-3-ui
+docker exec -it project-3-ui /bin/bash
 ```
 The above command will log you into the docker ui container that is running from the docker-compose
 ```
