@@ -13,55 +13,6 @@
   margin-bottom: 10px;
 }
 
-/* Flexbox for Input & Button */
-.unit-input-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-/* Input Field Styling */
-.unit-input {
-  padding: 8px;
-  width: 220px;
-  font-size: 14px;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  outline: none;
-  transition: 0.3s;
-}
-
-/* Input Focus Effect */
-.unit-input:focus {
-  border-color: #0056b3;
-  box-shadow: 0 0 8px rgba(0, 91, 187, 0.5);
-}
-
-/* Fetch Button Styling */
-.fetch-button {
-  padding: 12px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  margin-left: 10px;
-}
-
-.fetch-button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
-
-.fetch-button:active {
-  transform: scale(0.98);
-}
-
 /* Error Message Styling */
 .error-message {
   color: red;
@@ -134,7 +85,7 @@
   background-color: #f9f9f9;
   padding: 16px;
   margin: 20px 0;
-  border-radius: 8px;
+  border-radius: 15px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   color: #000;
 }
@@ -161,6 +112,30 @@
   height: auto;
   border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  animation: emblemEnter 0.7s ease-in-out forwards;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.unit-emblem:hover {
+  transform: scale(1.05) rotate(1deg);
+}
+
+/* Page load animation */
+@keyframes emblemEnter {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.unit-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 /* 🌙 Dark Mode Overrides */
@@ -200,6 +175,14 @@ body.dark .unit-button {
 
 body.dark .unit-button:hover {
   background-color: #005bb5;
+}
+
+body.dark .unit-emblem {
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.6);
+}
+
+body.dark .unit-button {
+  box-shadow: 0 0 10px rgba(0, 132, 255, 0.6);
 }
 
 body.dark .error-message {

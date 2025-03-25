@@ -95,18 +95,21 @@ function Units() {
           <h3>Unit {unit.id} Details</h3>
           <p><strong>Name:</strong> {unit.name}</p>
 
-          {userID == 5 && (
-        <button onClick={fetchAllUnitsWithEmployees} className="unit-button">
-          View All Units and Assigned Employees
-        </button>
-      )}
-          {unitEmblems[unit.name] && (
-            <img
-              src={unitEmblems[unit.name]}
-              alt={`${unit.name} Emblem`}
-              className="unit-emblem"
-            />
-          )}
+          <div className="unit-visual">
+            {unitEmblems[unit.name] && (
+              <img
+                src={unitEmblems[unit.name]}
+                alt={`${unit.name} Emblem`}
+                className="unit-emblem"
+              />
+            )}
+
+            {userID == 5 && (
+              <button onClick={fetchAllUnitsWithEmployees} className="unit-button">
+                View All Units and Assigned Employees
+              </button>
+            )}
+          </div>
         </div>
       )}
 

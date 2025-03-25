@@ -7,6 +7,8 @@ export function UserProvider({ children }) {
     const [userID, setUserID] = useState(getCookie('USER_ID') || '');
     const [unitID, setUnitID] = useState(getCookie('UNIT_ID') || '');
 
+    const [invalidUser, setInvalidUser] = useState(false);
+
     useEffect(() => {
         if (userID) {
             fetch(`http://localhost:4000/employees/${userID}`)
@@ -15,10 +17,25 @@ export function UserProvider({ children }) {
                     console.log("Fetched employee data:", data);
                     const employee = Array.isArray(data) ? data[0] : data;
 
+                    const validId = data.some(employee => employee.id == userID);
+
+                    console.log(validId);
+                    if (validId) {
+                      // console.log('User Exists!');
+                      setInvalidUser(false);
+                    }
+                    else {
+                      console.log('User Not Found!');
+                      setInvalidUser(true);
+                    }
+
                     setUnitID(employee.unit_id);
                     setCookie('UNIT_ID', employee.unit_id, 30);
                 })
-                .catch(() => setUnitID(''));
+                .catch(() => {
+                    setInvalidUser(true);
+                    setUnitID('');
+                });
         } else {
             setUnitID('');
         }
@@ -27,7 +44,7 @@ export function UserProvider({ children }) {
     }, [userID]);
 
     return (
-        <UserContext.Provider value={{ userID, setUserID, unitID }}>
+        <UserContext.Provider value={{ userID, setUserID, unitID, invalidUser}}>
             {children}
         </UserContext.Provider>
     );

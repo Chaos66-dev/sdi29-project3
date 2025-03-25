@@ -5,7 +5,6 @@ import UnitDropdown from '../UnitDropdown/UnitDropdown.jsx';
 import PersonnelDropdown from '../PersonnelDropdown/PersonnelDropdown.jsx';
 import TrainingDropdown from '../TrainingDropdown/TrainingDropdown.jsx';
 
-// TODO: Implement tabs
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';

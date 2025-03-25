@@ -10,14 +10,26 @@ import { UserContext } from "./context/UserContext.jsx";
 import { ThemeContext, ToggleThemeProvider } from './context/ThemeContext.jsx'
 
 import { CssBaseline, Box, AppBar, Toolbar, Typography } from '@mui/material';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
 
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { ThemeToggle } from './components/ThemeToggle/ThemeToggle.jsx'
+import Login from './components/Login/Login.jsx'
 
 function App() {
+   const [tabValue, setTabValue] = useState('1');
   const { userID, setUserID } = useContext(UserContext);
+
+  const { invalidUser } = useContext(UserContext);
+
+  const [showUserNotFoundMessage, setShowUserNotFoundMessage] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -35,25 +47,61 @@ function App() {
     }
   }
 
+  const changeTab = (event, newTabValue) => {
+    setTabValue(newTabValue);
+  }
+
   return (
     <ToggleThemeProvider>
       <CssBaseline />
-      <header>
-        <nav>
-          <button onClick={() => navigate('/')}>Home</button>
-          <button onClick={() => personnelNavClick(`/Personnel`)}>Personnel</button>
-          {/* <button onClick={() => navigate('/Personnel')}>Personnel</button> */}
-          <button onClick={() => navigate('/Units')}>Units</button>
-          <button onClick={() => navigate('/Training')}>Training</button>
 
-          {(userID === '5') ? (
-            <button onClick={() => navigate('/Create')}>Create</button>
-          ) : (
-            null
-          )}
-          <ThemeToggle />
-        </nav>
-      </header>
+      {(userID === '' || invalidUser) ? (
+        <ThemeToggle />
+      ) : (
+        <header>
+          <nav>
+            <Box sx={{ width: '100%', typography: 'body1' }}>
+              <TabContext value={tabValue}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <TabList onChange={changeTab} aria-label="create tabs">
+                    <Tab onClick={() => navigate('/')} label="Home" value="1" sx={{
+                      '&:focus': {
+                        outline: 'none'
+                      }
+                    }} />
+                    <Tab onClick={() => personnelNavClick(`/Personnel`)} label="Personnel" value="2" sx={{
+                      '&:focus': {
+                        outline: 'none'
+                      }
+                    }} />
+                    <Tab onClick={() => navigate('/Units')} label="Units" value="3" sx={{
+                      '&:focus': {
+                        outline: 'none'
+                      }
+                    }} />
+                    <Tab onClick={() => navigate('/Training')} label="Trainings" value="4" sx={{
+                      '&:focus': {
+                        outline: 'none'
+                      }
+                    }} />
+
+                    {(userID === '5') ? (
+                      <Tab onClick={() => navigate('/Create')} label="Make Changes" value="5" sx={{
+                        '&:focus': {
+                          outline: 'none'
+                        }
+                      }} />
+                    ) : (
+                      null
+                    )}
+                      <ThemeToggle />
+                  </TabList>
+                </Box>
+              </TabContext>
+            </Box>
+          </nav>
+        </header>
+      )}
 
       <Routes>
         <Route path='/' element={<Home />} />
