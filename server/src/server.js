@@ -57,6 +57,35 @@ server.post('/units', async (req, res) => {
     }
 });
 
+server.patch('/units', async(req, res) => {
+    const id = parseInt(req.body.id)
+    if (typeof id !== 'number' || isNaN(id)) {
+        res.status(400).json({ error: 'Invalid or missing fields. Must include id of unit to patch from this endpoint' });
+        return
+    }
+
+    const { name } = req.body
+    const updates = { name };
+    // removing undefined values to only keep the columns we want to p
+    Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+    // TODO type check name
+    try {
+        const patch = await knex('units')
+                                .where('id', id)
+                                .update(updates)
+
+        if (patch == 1){
+            res.status(201).json({message: `Patch for unit ${id} was successful`})
+        } else {
+            res.status(404).json({error: `Could not patch unit with id ${id}`})
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: 'Internal Server Error'})
+    }
+})
+
 server.delete('/units', async (req, res) => {
     const id = parseInt(req.body.id)
     if (typeof id !== 'number' || isNaN(id)) {
@@ -126,7 +155,7 @@ server.patch('/units/:id(\\d+)', async (req, res) =>{
             return
         }
 
-        res.status(200).json({ message: 'Unit updated successfully' });
+        res.status(201).json({ message: 'Unit updated successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update unit' });
     }
@@ -178,7 +207,6 @@ server.post('/employees', async (req, res) => {
         typeof unit_id !== 'number' || isNaN(unit_id) ||
         typeof sex !== 'string' || sex.trim() === ''
     ) {
-        console.log(`name: ${name} \nage: ${age} \nrank: ${rank} \nunit_id: ${unit_id} \nsex: ${sex}`)
         res.status(400).json({ error: 'Invalid or missing fields' });
         return
     }
@@ -239,7 +267,7 @@ server.patch('/employees', async (req, res) => {
             return
         }
 
-        res.status(200).json({ message: 'Employee updated successfully' });
+        res.status(201).json({ message: 'Employee updated successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update employee' });
     }
@@ -269,7 +297,6 @@ server.delete('/employees', async (req, res) => {
 // /employees/:id
 // Cheked
 server.get('/employees/:id(\\d+)', async (req, res) => {
-    console.log('employees/:id hit')
     const id  = parseInt(req.params.id)
     if (Number.isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. ID should be a number' });
@@ -300,8 +327,8 @@ server.post('/employees/:id(\\d+)', (req, res) => {
 server.patch('/employees/:id(\\d+)', async (req, res) => {
     const id = parseInt(req.params.id)
     try {
-        const { unit_id, name, age, gender, rank, } = req.body
-        const updates = { unit_id, name, age, gender, rank };
+        const { unit_id, name, age, sex, rank, } = req.body
+        const updates = { unit_id, name, age, sex, rank };
         // removing undefined values to only keep the columns we want to p
         Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
@@ -323,7 +350,7 @@ server.patch('/employees/:id(\\d+)', async (req, res) => {
             return
         }
 
-        res.status(200).json({ message: 'Employee updated successfully' });
+        res.status(201).json({ message: 'Employee updated successfully' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to update employee' });
     }
@@ -353,7 +380,6 @@ server.delete('/employees/:id(\\d+)', async (req, res) => {
 // /employees/trainings
 // Checked
 server.get('/employees/trainings/', async (req, res) => {
-    console.log('/employees/trainings/ hit')
     try {
         const query = await knex('employee_trainings').select(
                                                         'id',
@@ -420,7 +446,7 @@ server.patch('/employees/trainings/', async (req, res) => {
                 return
             }
 
-            res.status(200).json({ message: 'Employee training record updated successfully' });
+            res.status(201).json({ message: 'Employee training record updated successfully' });
         } catch (error) {
             res.status(500).json({ error: 'Internal server issue'})
         }
@@ -460,7 +486,6 @@ This is required to PATCH and DELETE any record at this endpoint
 // Checked
 server.get('/employees/trainings/:training_id', async (req, res) => {
     const training_id = parseInt(req.params.training_id)
-    console.log('/employees/trainings/:id hit')
     if (typeof training_id !== 'number' || isNaN(training_id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of the training record to get a list of employess who have completed it' });
         return
@@ -555,18 +580,22 @@ server.patch('/employees/trainings/:training_id', async (req, res) => {
         const updates = {};
 
         if (employee_id) updates.employee_id = employee_id;
-        if (new_training_id) updates.training_id = new_training_id;
+        if (new_training_id) {
+            updates.training_id = new_training_id;
+        } else {
+            updates.training_id = parseInt(req.params.training_id)
+        }
         if (date_completed) updates.date_completed = date_completed;
 
         const updatedRows = await knex('employee_trainings')
                                     .where('id', pk_id)
                                     .update(updates);
 
-        if (updatedRows.length == 0) {
+        if (updatedRows == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
-        res.status(200).json({ message: `Employee training record with id ${pk_id} updated successfully` });
+        res.status(201).json({ message: `Employee training record with id ${pk_id} updated successfully` });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -638,7 +667,6 @@ server.post('/trainings', async (req, res) => {
         typeof duration !== 'string' || duration.trim() === ''||
         typeof due_date !== 'string' || due_date.trim() === ''
         ){
-            console.log(`name: ${name} \nduration: ${duration} \nin_person: ${in_person} \ndue_date: ${due_date}`)
         return res.status(400).json({ message : 'Incorrect input data'})
     }
     try {
@@ -676,7 +704,7 @@ server.post('/trainings', async (req, res) => {
 })
 
 server.patch('/trainings', async (req, res) => {
-    const { id, name, duration, in_person, due_date} = re.body
+    const { id, name, duration, in_person, due_date} = req.body
     if (typeof id !== 'number' || isNaN(id)) {
         res.status(400).json({ error: 'Invalid or missing fields. Must include number id of training course to patch' });
         return
@@ -685,15 +713,15 @@ server.patch('/trainings', async (req, res) => {
     const updates = {};
     if (name) updates.name = name;
     if (duration) updates.duration = duration;
-    if (duration) updates.duration = duration;
+    if (in_person) updates.in_person = in_person;
     if (due_date) updates.due_date = due_date;
 
     try {
         const patch = await knex('training_courses')
                                 .where('id', id)
                                 .update(updates)
-        if (patch.length == 1) {
-            res.status(200).json({message: `Training course with id: ${id} successfully updated`})
+        if (patch == 1) {
+            res.status(201).json({message: `Training course with id: ${id} successfully updated`})
         } else {
             res.status(400).json({error: `Unable to update training course with id: ${id}`})
         }
@@ -770,12 +798,13 @@ server.patch('/trainings/:id(\\d+)', async (req, res) => {
         const patch = await knex('training_courses')
                                 .where('id', id)
                                 .update(updates)
-        if (patch) {
-            res.staus(200).json({message: `Successfully updated training with id ${id}`})
+        if (patch == 1) {
+            res.status(201).json({message: `Successfully updated training with id ${id}`})
         } else {
             res.status(400).json({ error: `Unable to update training with id: ${id}`})
         }
     } catch (error) {
+        console.log(error)
         res.status(500).json({error: 'Internal Server Error.'})
     }
 })
@@ -867,7 +896,7 @@ server.patch('/trainings/employees', async (req, res) => {
                 return
             }
 
-            res.status(200).json({ message: 'Employee training record updated successfully' });
+            res.status(201).json({ message: 'Employee training record updated successfully' });
         } catch (error) {
             res.status(500).json({ error: 'Internal server issue'})
         }
@@ -955,21 +984,19 @@ server.post('/trainings/employee/:employee_id', async (req, res) => {
 })
 
 server.patch('/trainings/employee/:employee_id', async (req, res) => {
-    const { pk_id, new_employee_id, training_id, date_completed} = req.body
-    if (
-        typeof pk_id !== 'number' || isNaN(pk_id) ||
-        (training_id && typeof new_training_id !== 'number') ||
-        (new_employee_id && typeof employee_id !== 'number') ||
-        (date_completed && typeof date_completed !== 'string')
-    ) {
-        return res.status(400).json({ error: 'Invalid or missing fields. Ensure pk_id is a number, training_id is a number (if provided), \
-             new_employee_id is a number (if provided), and date_completed is a valid date string (if provided).' });
-    }
+    const { new_employee_id, training_id, date_completed} = req.body
+    const pk_id = parseInt(req.body.pk_id)
+
+    // TODO type check input fields
 
     try {
         const updates = {};
 
-        if (new_employee_id) updates.employee_id = new_employee_id;
+        if (new_employee_id){
+            updates.employee_id = new_employee_id;
+        } else {
+            updates.employee_id = parseInt(req.params.employee_id)
+        }
         if (training_id) updates.training_id = training_id;
         if (date_completed) updates.date_completed = date_completed;
 
@@ -977,8 +1004,8 @@ server.patch('/trainings/employee/:employee_id', async (req, res) => {
                                     .where('id', pk_id)
                                     .update(updates);
 
-        if (updatedRows.length == 1) {
-            res.status(200).json({ message: `Employee training record with id ${pk_id} updated successfully` });
+        if (updatedRows == 1) {
+            res.status(201).json({ message: `Employee training record with id ${pk_id} updated successfully` });
         } else {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
@@ -1062,11 +1089,11 @@ server.patch('/physical_readiness_standards_men', async (req, res) => {
                                     .update(updates)
 
 
-        if (updatedRows.length == 0) {
+        if (updatedRows == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
-        res.status(200).json({ message: `Men physicial readiness standard with id ${id} updated successfully` });
+        res.status(201).json({ message: `Men physicial readiness standard with id ${id} updated successfully` });
     } catch (error) {
         res.status(500).json({ error: 'Internal Sever Error'})
     }
@@ -1145,11 +1172,11 @@ server.patch('/physical_readiness_standards_women', async (req, res) => {
                                     .update(updates)
 
 
-        if (updatedRows.length == 0) {
+        if (updatedRows == 0) {
             return res.status(404).json({ error: 'No matching record found to update' });
         }
 
-        res.status(200).json({ message: `Women physicial readiness standard with id ${id} updated successfully` });
+        res.status(201).json({ message: `Women physicial readiness standard with id ${id} updated successfully` });
     } catch (error) {
         res.status(500).json({ error: 'Internal Sever Error'})
     }

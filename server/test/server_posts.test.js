@@ -2,15 +2,20 @@ const request = require('supertest');
 const server = require('../src/server');
 const chai = require('chai');
 const expect = chai.expect;
-const knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
+let knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
 
-// TODO test incorrect post's
+// TODO test incorrect posts's
 
-afterEach(async () => {
+beforeEach(async () => {
+    knex = require('knex')(require('../knexfile.js')[process.env.NODE_ENV||'development']);
     await knex.migrate.rollback();
     await knex.migrate.latest();
     await knex.seed.run();
-  });
+});
+
+afterEach(async () => {
+    await knex.destroy();
+});
 
 describe('POST /units', () => {
     it('/units should handle a post with a status of 201', async () => {
