@@ -11,9 +11,9 @@ services:
     build: ./server
     image: project3_server
     container_name: project-3-server
-    volumes:
-      - ./server/test:/src/app/test
-      - ./server/src:/src/app/src
+    # volumes:
+    #   - ./server/test:/src/app/test
+    #   - ./server/src:/src/app/src
     ports:
       - "4000:8081"
     env_file:
