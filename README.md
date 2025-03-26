@@ -59,7 +59,7 @@ The Readiness Tracker keeps track of multiple units and the peronnel in those un
 
 On first load you will be greeted by:
 
-<homescreen image>
+![Home_screen](https://github.com/user-attachments/assets/566ce15a-8565-44cc-ba8b-cac531d0b813)
 
 Where you will sign in based on your personnel ID.
 
