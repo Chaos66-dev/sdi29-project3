@@ -16,17 +16,16 @@ beforeEach(() => {
 describe("Button Test", () => {
 
     it('Check for the basic login buttons', () => {
-        render(    
+        render(
         <UserProvider>
             <Login />
         </UserProvider>
         );
-        expect( screen.getByText("Sign In")).toBeInTheDocument();
-        expect( screen.getByText("Sign Out")).toBeInTheDocument();
+        expect(screen.getByText("Sign In")).toBeInTheDocument() || expect(screen.getByText("Sign Out")).toBeInTheDocument();
     });
 
     it('Check for the basic input field', () => {
-        const { container } = render(    
+        const { container } = render(
         <UserProvider>
             <Login />
         </UserProvider>

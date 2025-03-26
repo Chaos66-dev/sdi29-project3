@@ -27,21 +27,14 @@ function Create() {
 
     const [tabValue, setTabValue] = useState('1');
 
-
     // TRAININGS
     // Add Training
     const addTraining = (trainingName, trainingDuration, trainingTDY, trainingDue) => {
-        // Parse and validate inputs
-        const nameToSend = String(trainingName || '').trim();
-        const durationToSend = Number(trainingDuration);
-        const inPersonToSend = Boolean(trainingTDY);
-        const dueDateToSend = trainingDue;
-
         console.log('Sending to server:', {
-            name: nameToSend,
-            duration: durationToSend,
-            in_person: inPersonToSend,
-            due_date: dueDateToSend,
+            name: trainingName,
+            duration: trainingDuration,
+            in_person: trainingTDY,
+            due_date: trainingDue,
         });
 
         fetch('http://localhost:4000/trainings', {
@@ -50,15 +43,16 @@ function Create() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                name: nameToSend,
-                duration: durationToSend,
-                in_person: inPersonToSend,
-                due_date: dueDateToSend,
+                name: String(trainingName || '').trim(),
+                duration: String(trainingDuration || '').trim(),
+                in_person: Boolean(trainingTDY),
+                due_date: String(trainingDue || '').trim(),
             }),
         })
             .then(response => response.json())
             .then(data => {
                 console.log('Successful unit POST:', data);
+                alert(`Training Added!`);
             })
             .catch((error) => {
                 console.error('Error unit POST:', error);
@@ -90,6 +84,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful unit PATCH:', data);
+                alert(`Training Updated!`);// thank you!!!  :)
             })
             .catch((error) => {
                 console.error('Error unit PATCH:', error);
@@ -108,10 +103,98 @@ function Create() {
         .then(data => {
             console.log('Successful training DELETE:', data);
             setSelectedTraining(''); // Clear the selection after deletion
+            alert(`Training Removed!`);
         })
         .catch((error) => {
             console.error('Error training DELETE:', error);
         });
+    };
+
+    // Add Personnel Training
+    const addPersonnelTraining = (employeeId, trainingId, dateCompleted) => {
+        console.log('Sending to server:', {
+            employee_id: employeeId,
+            training_id: trainingId,
+            date_completed: dateCompleted,
+        });
+
+        fetch('http://localhost:4000/employees/trainings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_id: Number(employeeId),
+                training_id: Number(trainingId),
+                date_completed: dateCompleted,
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Successful personnel training POST:', data);
+                alert(`Training Added to Employee!`);
+            })
+            .catch((error) => {
+                console.error('Error personnel training POST:', error);
+            });
+    };
+
+    // Edit Personnel Training
+    const editPersonnelTraining = (recordId, employeeId, trainingId, dateCompleted) => {
+        console.log('Sending to server:', {
+            id: recordId,
+            employee_id: employeeId,
+            training_id: trainingId,
+            date_completed: dateCompleted,
+        });
+
+        fetch('http://localhost:4000/employees/trainings/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: Number(recordId),
+                employee_id: Number(employeeId),
+                training_id: Number(trainingId),
+                date_completed: dateCompleted,
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Successful personnel training PATCH:', data);
+                alert(`Training Updated for Employee!`);
+            })
+            .catch((error) => {
+                console.error('Error personnel training PATCH:', error);
+            });
+    };
+
+    // Delete Personnel Training
+    const deletePersonnelTraining = (recordId) => {
+        console.log('Sending to server:', {
+            id: recordId,
+        });
+
+        fetch('http://localhost:4000/employees/trainings/', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: Number(recordId),
+            }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Successful personnel training DELETE:', data);
+                setSelectedEmployee('');
+                setSelectedTraining('');
+                alert(`Training Removed from Employee!`);
+            })
+            .catch((error) => {
+                console.error('Error personnel training DELETE:', error);
+            });
     };
 
     // UNITS
@@ -129,6 +212,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful unit POST:', data);
+                alert(`Unit Added!`);
             })
             .catch((error) => {
                 console.error('Error unit POST:', error);
@@ -149,6 +233,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful unit PATCH:', data);
+                alert(`Unit Updated!`);
             })
             .catch((error) => {
                 console.error('Error unit PATCH:', error);
@@ -166,6 +251,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful unit DELETE:', data);
+                alert(`Unit Removed!`);
             })
             .catch((error) => {
                 console.error('Error unit DELETE:', error);
@@ -191,6 +277,9 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful employee POST:', data);
+                // const newEmployeeId = data.length - 1;
+                // alert(`Employee Added! Your Login ID is ${newEmployeeId}`);
+                alert(`Employee Added!`);
             })
             .catch((error) => {
                 console.error('Error employee POST:', error);
@@ -215,6 +304,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful employee PATCH:', data);
+                alert(`Employee Updated!`);
             })
             .catch((error) => {
                 console.error('Error employee PATCH:', error);
@@ -232,6 +322,7 @@ function Create() {
             .then(response => response.json())
             .then(data => {
                 console.log('Successful employee DELETE:', data);
+                alert(`Employee Removed`);
             })
             .catch((error) => {
                 console.error('Error employee DELETE:', error);
@@ -281,7 +372,6 @@ function Create() {
                                 <UnitDropdown onSelect={(value) => {
                                     setSelectedUnit(value);
                                 }} />
-                                {/* <label>Unit ID: {selectedUnit.id}</label> */}
                                 <input type="text" placeholder="New Unit Name" id='update-unit-name-input' />
                                 <input type='button' value='Update Unit' onClick={() => {
                                     // PUT
@@ -384,7 +474,7 @@ function Create() {
                                 const id = selectedTraining?.id;
                                 const name = document.getElementById('edit-training-name-input').value;
                                 const durationStr = document.getElementById('edit-training-duration-input').value;
-                                const inPerson = document.getElementById('edit-training-TDY-input').checked;
+                                const inPerson = document.getElementById('edit-training-TDY-input').value === "Yes";
                                 const dueDate = new Date(document.getElementById('edit-training-due-input').value).toISOString();
 
                                 let duration;
@@ -409,7 +499,7 @@ function Create() {
                                         const minutes = totalMinutes % 60;
                                         const durationStr = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                                         document.getElementById('edit-training-duration-input').value = durationStr;
-                                        document.getElementById('edit-training-TDY-input').value = value.in_person;
+                                        document.getElementById('edit-training-TDY-input').value = value.in_person ? "Yes" : "No";
                                         document.getElementById('edit-training-due-input').value = new Date(value.due_date).toISOString().split('T')[0];
                                     }
                                 }} />
@@ -429,34 +519,122 @@ function Create() {
                                 <input type='button' value='Remove Training' onClick={() => {
                                     deleteTraining();
                                 }} />
+                            </form>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const employeeId = selectedEmployee?.id;
+                                const trainingId = selectedTraining?.id;
+                                const dateCompleted = document.getElementById('add-personnel-training-date-input').value;
+
+                                if (!employeeId || !trainingId || !dateCompleted) {
+                                    console.error('Error: Employee, Training, and Date Completed are required');
+                                    return;
+                                }
+
+                                addPersonnelTraining(employeeId, trainingId, dateCompleted);
+                            }}>
                                 <h3>Add Personnel Training</h3>
-                                    <PersonnelDropdown onSelect={(value) => {
-                                        setSelectedEmployee(value);
-                                    }} />
-                                    <TrainingDropdown onSelect={(value) => {
-                                        setSelectedTraining(value);
-                                    }} />
+                                <PersonnelDropdown onSelect={(value) => {
+                                    setSelectedEmployee(value);
+                                }} />
+                                <TrainingDropdown onSelect={(value) => {
+                                    setSelectedTraining(value);
+                                }} />
+                                <input
+                                    type="date"
+                                    id='add-personnel-training-date-input'
+                                    required
+                                />
                                 <input type="submit" value="Add Personnel Training" />
+                            </form>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const employeeId = selectedEmployee?.id;
+                                const trainingId = selectedTraining?.id;
+                                const dateCompleted = document.getElementById('edit-personnel-training-date-input').value;
+
+                                if (!employeeId || !trainingId || !dateCompleted) {
+                                    console.error('Error: Employee, Training, and Date Completed are required');
+                                    return;
+                                }
+
+                                fetch('http://localhost:4000/employees/trainings/', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        const matchingRecord = data.find(record =>
+                                            record.employee_id === employeeId && record.training_id === trainingId
+                                        );
+
+                                        if (matchingRecord) {
+                                            const recordId = matchingRecord.id;
+                                            editPersonnelTraining(recordId, employeeId, trainingId, dateCompleted);
+                                        } else {
+                                            console.error('Error: No record found for this employee and training combination');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching employee trainings:', error);
+                                    });
+                            }}>
                                 <h3>Edit Personnel Training</h3>
-                                    <PersonnelDropdown onSelect={(value) => {
-                                        setSelectedEmployee(value);
-                                    }} />
-                                    <TrainingDropdown onSelect={(value) => {
-                                        setSelectedTraining(value);
-                                    }} />
-                                    <input
-                                        type="date"
-                                        id='add-personnel-training-date-input'
-                                        required
-                                    />
+                                <PersonnelDropdown onSelect={(value) => {
+                                    setSelectedEmployee(value);
+                                }} />
+                                <TrainingDropdown onSelect={(value) => {
+                                    setSelectedTraining(value);
+                                }} />
+                                <input
+                                    type="date"
+                                    id='edit-personnel-training-date-input'
+                                    required
+                                />
                                 <input type="submit" value="Edit Personnel Training" />
+                            </form>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const employeeId = selectedEmployee?.id;
+                                const trainingId = selectedTraining?.id;
+
+                                if (!employeeId || !trainingId) {
+                                    console.error('Error: Employee and Training are required');
+                                    return;
+                                }
+
+                                fetch('http://localhost:4000/employees/trainings/', {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        const matchingRecord = data.find(record =>
+                                            record.employee_id === employeeId && record.training_id === trainingId
+                                        );
+
+                                        if (matchingRecord) {
+                                            const recordId = matchingRecord.id;
+                                            deletePersonnelTraining(recordId);
+                                        } else {
+                                            console.error('Error: No record found for this employee and training combination');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching employee trainings:', error);
+                                    });
+                            }}>
                                 <h3>Remove Personnel Training</h3>
-                                    <PersonnelDropdown onSelect={(value) => {
-                                        setSelectedEmployee(value);
-                                    }} />
-                                    <TrainingDropdown onSelect={(value) => {
-                                        setSelectedTraining(value);
-                                    }} />
+                                <PersonnelDropdown onSelect={(value) => {
+                                    setSelectedEmployee(value);
+                                }} />
+                                <TrainingDropdown onSelect={(value) => {
+                                    setSelectedTraining(value);
+                                }} />
                                 <input type="submit" value="Remove Personnel Training" />
                             </form>
                         </div>

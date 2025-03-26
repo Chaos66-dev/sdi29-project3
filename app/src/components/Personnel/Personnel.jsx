@@ -155,7 +155,7 @@ const completedTrainingsPercentage = totalTrainings === 0 ? 0 : ((completedTrain
     if (loading) {
         return (
             <div>
-                <h2 className = "loading">Loading...</h2>
+                <p className = "loading">Loading...</p>
             </div>
         );
     }
