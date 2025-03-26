@@ -67,18 +67,27 @@ function Units() {
   }, [id]);
 
   const fetchAllUnitsWithEmployees = async () => {
-    const unitsData = await fetchData("http://localhost:4000/units", "Failed to fetch units");
-    const employeesData = await fetchData("http://localhost:4000/employees", "Failed to fetch employees");
-
-    if (unitsData && employeesData) {
-      const unitsWithEmployees = unitsData.map(unit => {
-        const assignedEmployees = employeesData.filter(emp => emp.unit_id === unit.id);
-        return { ...unit, employees: assignedEmployees };
-      });
-
-      setAllUnits(unitsWithEmployees);
-      setShowAllUnits(true);
+    if (showAllUnits) {
+      setShowAllUnits(false);
+      return;
     }
+
+
+    if (allUnits.length === 0) {
+      const unitsData = await fetchData("http://localhost:4000/units", "Failed to fetch units");
+      const employeesData = await fetchData("http://localhost:4000/employees", "Failed to fetch employees");
+
+      if (unitsData && employeesData) {
+        const unitsWithEmployees = unitsData.map(unit => {
+          const assignedEmployees = employeesData.filter(emp => emp.unit_id === unit.id);
+          return { ...unit, employees: assignedEmployees };
+        });
+
+        setAllUnits(unitsWithEmployees);
+      }
+    }
+
+    setShowAllUnits(true);
   };
 
   return (
