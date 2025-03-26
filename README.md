@@ -126,3 +126,19 @@ The above command will log you into the docker ui container that is running from
 ```
 npm test
 ```
+## Planning
+
+Used Figma and Whiteboard to do the basic user stories, ERD and wireframe layouts.
+
+### Wireframe
+
+Basic Wireframe
+![Basic-flow-wireframe](https://github.com/user-attachments/assets/1b787b67-14f0-41fe-89b6-6badda31fff9)
+
+Basic Page Layout
+![Basic-wireframe-page-design](https://github.com/user-attachments/assets/134695db-506c-48a1-9b3f-f9e32c782eee)
+
+Detailed Flow Wireframe
+![detailed-flow-wireframe-pt1](https://github.com/user-attachments/assets/eca9c95f-0e28-4115-bad6-4e8860efda87)
+
+![detailed-flow-wireframe-pt2](https://github.com/user-attachments/assets/a45d409a-1e1e-4ea5-8202-7de072d7a1f5)
