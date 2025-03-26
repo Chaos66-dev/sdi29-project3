@@ -133,6 +133,7 @@ Used Figma and Whiteboard to do the basic user stories, ERD and wireframe layout
 ### Wireframe
 
 Basic Wireframe
+
 ![Basic-flow-wireframe](https://github.com/user-attachments/assets/1b787b67-14f0-41fe-89b6-6badda31fff9)
 
 Basic Page Layout
