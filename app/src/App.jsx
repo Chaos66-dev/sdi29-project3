@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from './components/Home/Home.jsx'
 import Personnel from './components/Personnel/Personnel.jsx'
+import AllPersonnel from './components/AllPersonnel/AllPersonnel.jsx'
 import Units from './components/Units/Units.jsx'
 import Create from './components/Create/Create.jsx'
 import Training from './components/Training/Training.jsx'
@@ -44,14 +45,19 @@ function App() {
           {/* <button onClick={() => navigate('/Personnel')}>Personnel</button> */}
           <button onClick={() => navigate('/Units')}>Units</button>
           <button onClick={() => navigate('/Training')}>Training</button>
-          <button onClick={() => navigate('/Create')}>Create</button>
+
+          {(userID === '5') ? (
+            <button onClick={() => navigate('/Create')}>Create</button>
+          ) : (
+            null
+          )}
           <ThemeToggle />
         </nav>
       </header>
 
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/Personnel' element={<Personnel />} />
+        <Route path='/AllPersonnel' element={<AllPersonnel />} />
         <Route path='/Personnel/:id' element={<Personnel />} />
         <Route path='/Units' element={<Units />} />
         <Route path='/Units/:id' element={<Units />} />

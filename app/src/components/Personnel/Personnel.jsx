@@ -19,6 +19,7 @@ function Personnel() {
 
     useEffect(() => {
     if(userID != null && userID !== '')  {
+        fetch(`http://localhost:4000/employees`)
         fetch(`http://localhost:4000/trainings/employees`)
         fetch(`http://localhost:4000/employees/${userID}`)
         .then((res) => {
@@ -182,6 +183,8 @@ const completedTrainingsPercentage = totalTrainings === 0 ? 0 : ((completedTrain
 {!showUserNotFoundMessage && completedTrainings === totalTrainings && <h3>All Training Complete!</h3>}
 {!showUserNotFoundMessage && completedTrainings < totalTrainings && <h3>Training Incomplete! {incompleteTrainings} Tasks left</h3>}
 {!showUserNotFoundMessage && completedTrainings < totalTrainings && <p>Head to <Link to = {'/Training'}><strong>Training</strong></Link> to Complete</p>}
+
+{userID == 5 && <Link to = {'/AllPersonnel'}><button>All Personnel</button></Link>}
         </>
     );
 }
